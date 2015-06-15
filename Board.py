@@ -6,6 +6,8 @@ class Board(object):
     __gameEngine = None
     __cameraPosition = None
     __cameraDirection = None
+    __environPosition = None
+    __environScale = None
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
@@ -19,6 +21,8 @@ class Board(object):
     def initValues(self):
         self.__cameraPosition = LPoint3f(25, -45, 40)
         self.__cameraDirection = LPoint3f(0, -25, 0)
+        self.__environPosition = LPoint3f(0, 0, 0)
+        self.__environScale = LPoint3f(10, 10, 10)
 
     def setTheCamera(self):
         self.__gameEngine.disableMouse()
@@ -33,8 +37,8 @@ class Board(object):
         self.__environ.setTexture(boardTexture, 1)
 
     def setModelParameters(self):
-        self.__environ.setScale(10, 10, 10)
-        self.__environ.setPos(0, 0, 0)
+        self.__environ.setScale(self.__environScale)
+        self.__environ.setPos(self.__environPosition)
 
     def draw(self):
         self.__environ.reparentTo(self.__gameEngine.render)

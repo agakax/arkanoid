@@ -1,41 +1,77 @@
 __author__ = 'Kamil'
 
-from direct.showbase.DirectObject import DirectObject
-from panda3d.core import Point3
+from panda3d.core import LPoint3f
 from pandac.PandaModules import KeyboardButton
+from pandac.PandaModules import CollisionSphere
+from pandac.PandaModules import CollisionNode
 
-class Paddle(DirectObject):
+class Paddle(object):
 
-    __position = Point3(25, 5, 4)
-    __elapsedTime = 0.0
-    __velocity = 8.0
-    def __init__(self, parent):
-        self.__parent = parent
+    __gameEngine = None
+    __position = None
+    __scale = None
+    __elapsedTime = None
+    __velocity = None
+    __leftButton = None
+    __rightButton = None
+    __collisionNodePath = None
 
-        self.__paddleRoot = self.__parent.render.attachNewNode("paddleRoot")
-        self.__paddle = self.__parent.loader.loadModel("models/ball_v1")
+    def __init__(self, gameEngine):
+        self.__gameEngine = gameEngine
+        self.loadModel()
+        self.initValues()
+        self.setModelTexture()
+        self.setModelParameters()
+        collisionSphere = self.createCollisionSphere()
+        self.addCollisionSolidToNode(collisionSphere)
 
-        self.__paddleTexture = self.__parent.loader.loadTexture("textures/iron05.jpg")
-        self.__paddle.setTexture(self.__paddleTexture, 1)
+        # Just to show collision sphere
+        self.__collisionNodePath.show()
+
+    def initValues(self):
+        self.__position = LPoint3f(25, 5, 4)
+        self.__scale = LPoint3f(5, 0.7, 0.7)
+        self.__velocity = LPoint3f(8.0, 0, 0)
+        self.__rightButton = KeyboardButton.right()
+        self.__leftButton = KeyboardButton.left()
+        self.__collisionNodePath = self.__paddle.attachNewNode(CollisionNode('solids'))
+
+    def loadModel(self):
+        self.__paddle = self.__gameEngine.loader.loadModel("models/ball_v1")
+
+    def setModelTexture(self):
+        paddleTexture = self.__gameEngine.loader.loadTexture("textures/iron05.jpg")
+        self.__paddle.setTexture(paddleTexture, 1)
+
+    def setModelParameters(self):
+        self.__paddle.setScale(self.__scale)
+        self.__paddle.setPos(self.__position)
+
+    def createCollisionSphere(self):
+        min, max = self.__paddle.getTightBounds()
+        length = (max - min)/2
+        return CollisionSphere(0, 0, 0, length.getY() + 1)
+
+    def addCollisionSolidToNode(self, collisionSolid):
+        self.__collisionNodePath.node().addSolid(collisionSolid)
 
     def draw(self):
-        self.__paddle.reparentTo(self.__paddleRoot)
-
-        self.__paddle.setScale(5, 0.7, 0.7)
-        self.__paddle.setPos(self.__position)
+        paddleRoot = self.__gameEngine.render.attachNewNode("paddleRoot")
+        self.__paddle.reparentTo(paddleRoot)
 
     def update(self, elapsedTime):
         self.__elapsedTime = elapsedTime
-        left_button = KeyboardButton.left()
-        right_button = KeyboardButton.right()
-        is_down = self.__parent.mouseWatcherNode.is_button_down
-        if is_down(left_button):
+        self.__position = self.__paddle.getPos()
+        is_down = self.__gameEngine.mouseWatcherNode.is_button_down
+        if is_down(self.__leftButton):
             self.moveLeft()
-        if is_down(right_button):
+        if is_down(self.__rightButton):
             self.moveRight()
 
     def moveLeft(self):
-        self.__paddle.setPos(self.__paddle.getPos() + Point3(-self.__elapsedTime * self.__velocity, 0, 0))
+        moveVector = -self.__velocity*self.__elapsedTime
+        self.__paddle.setPos(self.__position + moveVector)
 
     def moveRight(self):
-        self.__paddle.setPos(self.__paddle.getPos() + Point3(self.__elapsedTime * self.__velocity, 0, 0))
+        moveVector = self.__velocity*self.__elapsedTime
+        self.__paddle.setPos(self.__position + moveVector)

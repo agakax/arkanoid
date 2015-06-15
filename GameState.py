@@ -36,6 +36,7 @@ class GameState(object):
 
     def updateTask(self, task):
         self.__elapsedTime = self.__clock.getDt()
-        self.__objects[2].update(self.__elapsedTime)
+        for obj in self.__objects:
+            obj.update(self.__elapsedTime)
         return task.cont
 

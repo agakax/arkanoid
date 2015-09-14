@@ -1,10 +1,8 @@
 __author__ = 'Kamil'
 
-from time import clock
-from Board import Board
-from Ball import Ball
-from Paddle import Paddle
-from pandac.PandaModules import ClockObject
+from Scene import Scene
+import time, sys
+from pandac.PandaModules import CollisionTraverser, CollisionHandlerEvent
 
 class EnumGameStates(object):
     EXITING = 0
@@ -15,28 +13,33 @@ class EnumGameStates(object):
 
 class GameState(object):
     __gameState = EnumGameStates.INITIALIZING
-    __objects = []
-    __game = None
-    __elapsedTime = 0.0
-    __clock = ClockObject.getGlobalClock()
-    def __init__(self, game):
-        self.__game = game
-        self.createObjects()
-        for obj in self.__objects:
-            obj.draw()
-        self.__game.taskMgr.add(self.updateTask, "updateTask")
+    __gameScene = None
+    __gameEngine = None
 
-    def createObjects(self):
-        board = Board(self.__game)
-        self.__objects.append(board)
-        ball = Ball(self.__game)
-        self.__objects.append(ball)
-        paddle = Paddle(self.__game)
-        self.__objects.append(paddle)
+    def __init__(self, gameEngine):
+        self.__gameEngine = gameEngine
+        self.createGameScene()
+        self.setGameState(EnumGameStates.PLAY)
+        time.sleep(2)
+        self.setGameState(EnumGameStates.PLAY)
 
-    def updateTask(self, task):
-        self.__elapsedTime = self.__clock.getDt()
-        for obj in self.__objects:
-            obj.update(self.__elapsedTime)
-        return task.cont
+    def createGameScene(self):
+        self.__gameScene = Scene(self.__gameEngine)
+
+    def setGameState(self, newGameState):
+        if self.__gameState != newGameState:
+            if newGameState == EnumGameStates.MENU:
+                self.__gameScene.loadMenu()
+            elif newGameState == EnumGameStates.PLAY:
+                isPreviousStatePause = self.__gameState == EnumGameStates.PAUSE
+                self.__gameScene.loadGame(isPreviousStatePause)
+            elif newGameState == EnumGameStates.PAUSE:
+                self.__gameScene.pauseGame()
+            elif newGameState == EnumGameStates.EXITING:
+                sys.exit()
+            self.__gameState = newGameState
+
+
+
+
 

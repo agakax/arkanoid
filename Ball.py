@@ -1,66 +1,73 @@
 __author__ = 'Kamil'
 
 from panda3d.core import LPoint3f
-from pandac.PandaModules import CollisionSphere
-from pandac.PandaModules import CollisionNode
+from pandac.PandaModules import CollisionNode, CollisionSphere
 
 class Ball(object):
     __gameEngine = None
-    __position = None
-    __velocity = None
-    __elapsedTime = None
-    __collisionNodePath = None
+    __ball = None
+    __position = LPoint3f(30, 25, 4)
+    __velocity = LPoint3f(2, -1.5, 0)
+    __scale = LPoint3f(1, 1, 1)
+    __collider = None
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
         self.loadModel()
-        self.initValues()
         self.setModelTexture()
         self.setModelParemeters()
-        collisionSphere = self.createCollisionSphere()
-        self.addCollisionSphereToNode(collisionSphere)
-
+        self.createCollider()
+        self.setColliderHandler()
+        self.defineCollisionEventHandling()
         # Just to show collision sphere
-        self.__collisionNodePath.show()
-
-    def initValues(self):
-        self.__position = LPoint3f(25, 15, 4)
-        self.__velocity = LPoint3f(1.0, 0.5, 0)
-        self.__scale = LPoint3f(0.7, 0.7, 0.7)
-        self.__collisionNodePath = self.__ball.attachNewNode(CollisionNode('solids'))
+        #self.__collider.show()
 
     def loadModel(self):
-        self.__ball = self.__gameEngine.loader.loadModel("models/ball_v1")
+        self.__ball = self.__gameEngine.loadModel('models/ball_v1')
 
     def setModelTexture(self):
-        ballTexture = self.__gameEngine.loader.loadTexture('textures/iron05.jpg')
-        self.__ball.setTexture(ballTexture, 1)
+        self.__gameEngine.setModelTexture(self.__ball, 'textures/iron05.jpg')
 
     def setModelParemeters(self):
         self.__ball.setPos(self.__position)
         self.__ball.setScale(self.__scale)
 
-    def createCollisionSphere(self):
-        min, max = self.__ball.getTightBounds()
-        radius = (max - min)/2
-        return CollisionSphere(0, 0, 0, radius.getX() + 1)
+    def createCollider(self):
+        self.__collider = self.__ball.attachNewNode(CollisionNode('ballCNode'))
+        radius = self.getBallRadius()
+        self.__collider.node().addSolid(CollisionSphere(0, 0, 0, radius))
 
-    def addCollisionSphereToNode(self, collisionSolid):
-        self.__collisionNodePath.node().addSolid(collisionSolid)
+    def getBallRadius(self):
+        minimum, maximum = self.__ball.getTightBounds()
+        radius = (maximum - minimum)/2
+        return max(radius.getX(), radius.getY(), radius.getZ())
+
+    def setColliderHandler(self):
+        self.__gameEngine.setColliderHandler(self.__collider)
+
+    def defineCollisionEventHandling(self):
+        self.__gameEngine.defineCollisionEventHandling('ballCNode', 'paddleCNode', self.collideEvent)
+
+    def collideEvent(self, entry):
+        normal = entry.getContactNormal(entry.getIntoNodePath())
+        self.__velocity = self.getReflectionVector(normal)
+
+    def getReflectionVector(self, normal):
+        dotProduct = self.computeDotProduct(normal)
+        subtrahend = LPoint3f(2*dotProduct*normal.getX(), 2*dotProduct*normal.getY(), 2*dotProduct*normal.getZ())
+        return self.__velocity - subtrahend
+
+    def computeDotProduct(self, normal):
+        return sum(n*v for n,v in zip(normal, self.__velocity))
 
     def draw(self):
-        ballRoot = self.__gameEngine.render.attachNewNode("ballRoot")
-        self.__ball.reparentTo(ballRoot)
-
+        ballRoot = self.__gameEngine.render.attachNewNode('ballRoot')
+        self.__ball.reparentTo(self.__gameEngine.render)
 
     def update(self, elapsedTime):
-        self.__elapsedTime = elapsedTime
-        self.__position = self.__ball.getPos()
-        self.moveBall()
+        moveVector = self.__velocity*elapsedTime
+        self.__position = self.__ball.getPos() + moveVector
+        self.__ball.setPos(self.__position)
 
-    def moveBall(self):
-        moveVector = self.__velocity*self.__elapsedTime
-        self.__ball.setPos(self.__position + moveVector)
-
-    def detectCollision(self, objects):
-        pass
+    def destroy(self):
+        self.__ball.destroy()

@@ -22,8 +22,9 @@ class Scene(object):
         self.__gameEngine.camera.setHpr(self.__cameraDirection)
 
     def loadMenu(self):
-        self.destroyObjects()
-        self.drawObjects()
+        #self.destroyObjects()
+        #self.drawObjects()
+        pass
 
     def loadGame(self, isPreviousStatePause):
         if not isPreviousStatePause:
@@ -39,6 +40,7 @@ class Scene(object):
     def destroyObjects(self):
         for obj in self.__objects:
             obj.destroy()
+        self.__objects = []
 
     def drawObjects(self):
         for obj in self.__objects:

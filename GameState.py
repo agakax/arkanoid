@@ -20,6 +20,7 @@ class GameState(object):
         self.__gameEngine = gameEngine
         self.createGameScene()
         self.setGameState(EnumGameStates.PLAY)
+        self.setGameState(EnumGameStates.MENU)
         time.sleep(2)
         self.setGameState(EnumGameStates.PLAY)
 

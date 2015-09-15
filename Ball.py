@@ -6,8 +6,8 @@ from pandac.PandaModules import CollisionNode, CollisionSphere
 class Ball(object):
     __gameEngine = None
     __ball = None
-    __position = LPoint3f(30, 25, 4)
-    __velocity = LPoint3f(2, -1.5, 0)
+    __position = LPoint3f(35, 25, 4)
+    __velocity = LPoint3f(-4, -3, 0)
     __scale = LPoint3f(1, 1, 1)
     __collider = None
 
@@ -47,6 +47,7 @@ class Ball(object):
 
     def defineCollisionEventHandling(self):
         self.__gameEngine.defineCollisionEventHandling('ballCNode', 'paddleCNode', self.collideEvent)
+        self.__gameEngine.defineCollisionEventHandling('ballCNode', 'boardCNode', self.collideEvent)
 
     def collideEvent(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())
@@ -70,4 +71,5 @@ class Ball(object):
         self.__ball.setPos(self.__position)
 
     def destroy(self):
-        self.__ball.destroy()
+        self.__ball.stash()
+        self.__collider.removeNode()

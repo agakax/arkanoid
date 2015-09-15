@@ -14,7 +14,9 @@ class ArkanoidGame(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
         self.cTrav = CollisionTraverser()
+        self.cTrav.showCollisions(self.render)
         self.__collisionHandler.addInPattern('%fn-into-%in')
+        self.__collisionHandler.addOutPattern('%fn-out-%in')
         self.__gameState = GameState(self)
 
     def loadModel(self, modelPath):

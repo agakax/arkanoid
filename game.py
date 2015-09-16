@@ -19,10 +19,11 @@ class ArkanoidGame(ShowBase):
         self.setGravity()
         self.setLight()
         self.__collisionHandler.addInPattern('%fn-into-%in')
+        self.__collisionHandler.addInPattern('%fn-into')
         self.__gameState = GameState(self)
 
     def setGravity(self):
-        self.__collisionFloorHandler.setGravity(9.81+15)
+        self.__collisionFloorHandler.setGravity(9.81 + 55)
         self.__collisionFloorHandler.setMaxVelocity(100)
 
     def setLight(self):
@@ -43,6 +44,9 @@ class ArkanoidGame(ShowBase):
 
     def setColliderHandler(self, collider):
         self.cTrav.addCollider(collider, self.__collisionHandler)
+
+    def addFloorColliders(self, ray, node):
+        self.__collisionFloorHandler.addCollider(ray, node)
 
     def setFloorColliderHandler(self, collider):
         self.cTrav.addCollider(collider, self.__collisionFloorHandler)

@@ -4,10 +4,12 @@ from Block import Block
 
 class IndestructibleBlock(Block):
     def __init__(self, gameEngine, position, blockId):
-        Block.__init__(self, gameEngine)
+        Block.__init__(self, gameEngine, str(blockId))
         self._durability = -1
         self._points = 0
         self.loadModel('models/cone_wo2')
         self.setModelTexture('textures/bricks.jpg')
         self.setModelParameters(position)
-        self.createCollider('block' + str(blockId) + 'CNode')
+        self.createHitCollider('block' + str(blockId))
+        self.createFloorSensor('block' + str(blockId))
+        self.createRayCollider('block' + str(blockId))

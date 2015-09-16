@@ -49,7 +49,7 @@ class Board(object):
         boardMaxPos = LPoint3f(divideVectorsElements(boardMaxPos, self.__scale))
         if surface == 'floor':
             minPos = boardMinPos
-            maxPos = LPoint3f(multiplyVectorsElements(boardMaxPos, LVector3f(1, 1, 0.15)))
+            maxPos = LPoint3f(multiplyVectorsElements(boardMaxPos, LVector3f(1, 1, 0.265)))
             return minPos, maxPos
         elif surface == 'lWall':
             minPos = boardMinPos

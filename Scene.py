@@ -4,10 +4,14 @@ from panda3d.core import LPoint3f
 from Board import Board
 from Paddle import Paddle
 from Ball import Ball
+from DestructibleBlock import DestructibleBlock
+from IndestructibleBlock import IndestructibleBlock
+
+collshow = False
 
 class Scene(object):
     __gameEngine = None
-    __cameraPosition = LPoint3f(40, -60, 40)
+    __cameraPosition = LPoint3f(38, -80, 65)
     __cameraDirection = LPoint3f(0, -25, 0)
     __objects = []
 
@@ -15,9 +19,10 @@ class Scene(object):
         self.__gameEngine = gameEngine
         self.setCamera()
         self.__gameEngine.taskMgr.add(self.updateTask, "updateTask")
+        self.__gameEngine.accept('a', self.switchColliderDisplay)
 
     def setCamera(self):
-        #self.__gameEngine.disableMouse()
+        self.__gameEngine.disableMouse()
         self.__gameEngine.camera.setPos(self.__cameraPosition)
         self.__gameEngine.camera.setHpr(self.__cameraDirection)
 
@@ -32,6 +37,8 @@ class Scene(object):
             self.__objects.append(Board(self.__gameEngine))
             self.__objects.append(Paddle(self.__gameEngine))
             self.__objects.append(Ball(self.__gameEngine))
+            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(15, 55, 4), 1))
+            self.__objects.append(IndestructibleBlock(self.__gameEngine, LPoint3f(15, 55, 6), 2))
             self.drawObjects()
 
     def pauseGame(self):
@@ -51,3 +58,15 @@ class Scene(object):
         for obj in self.__objects:
             obj.update(elapsedTime)
         return task.cont
+
+    def switchColliderDisplay(self):
+        global collshow
+        collshow=not collshow
+        if collshow:
+            self.__gameEngine.cTrav.showCollisions(self.__gameEngine.render)
+            l=self.__gameEngine.render.findAllMatches("**/+CollisionNode")
+            for cn in l: cn.show()
+        else:
+            self.__gameEngine.cTrav.hideCollisions()
+            l=self.__gameEngine.render.findAllMatches("**/+CollisionNode")
+            for cn in l: cn.hide()

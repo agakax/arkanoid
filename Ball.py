@@ -7,7 +7,7 @@ class Ball(object):
     __gameEngine = None
     __ball = None
     __position = LPoint3f(35, 25, 4)
-    __velocity = LPoint3f(-4, -3, 0)
+    __velocity = LPoint3f(-20, 16, 0)
     __scale = LPoint3f(1, 1, 1)
     __collider = None
 
@@ -19,8 +19,6 @@ class Ball(object):
         self.createCollider()
         self.setColliderHandler()
         self.defineCollisionEventHandling()
-        # Just to show collision sphere
-        #self.__collider.show()
 
     def loadModel(self):
         self.__ball = self.__gameEngine.loadModel('models/ball_v1')
@@ -47,7 +45,7 @@ class Ball(object):
 
     def defineCollisionEventHandling(self):
         self.__gameEngine.defineCollisionEventHandling('ballCNode', 'paddleCNode', self.collideEvent)
-        self.__gameEngine.defineCollisionEventHandling('ballCNode', 'boardCNode', self.collideEvent)
+        self.__gameEngine.defineCollisionEventHandling('ballCNode', 'boardWallsCNode', self.collideEvent)
 
     def collideEvent(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())

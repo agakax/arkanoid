@@ -22,9 +22,6 @@ class Paddle(object):
         self.setModelParameters()
         self.createCollider()
 
-        # Just to show collision sphere
-        self.__collider.show()
-
     def loadModel(self):
         self.__paddle = self.__gameEngine.loadModel('models/ball_v1')
 
@@ -42,7 +39,7 @@ class Paddle(object):
         sizes = LPoint3f(sizes.getX()/self.__scale.getX(), sizes.getY()/self.__scale.getY(), sizes.getZ()/self.__scale.getZ())
         self.__collider.node().addSolid(CollisionSphere(0, 0, 0, max(sizes)))
         self.__gameEngine.setColliderHandler(self.__collider)
-        self.__gameEngine.defineCollisionEventHandling('paddleCNode', 'boardCNode', self.collideEvent)
+        self.__gameEngine.defineCollisionEventHandling('paddleCNode', 'boardWallsCNode', self.collideEvent)
 
     def collideEvent(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())

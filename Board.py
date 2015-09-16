@@ -1,24 +1,24 @@
 __author__ = 'Kamil'
 
-from panda3d.core import LPoint3f
+from panda3d.core import LPoint3f, LVector3f
 from pandac.PandaModules import CollisionNode, CollisionBox
+from MathFunctions import *
 
 class Board(object):
     __gameEngine = None
     __board = None
     __position = LPoint3f(0, 0, 0)
     __scale = LPoint3f(15, 15, 15)
-    __collider = None
-    __boardCenters = []
+    __colliderWalls = None
+    __colliderFloor = None
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
         self.loadModel()
         self.setModelTexture()
         self.setModelParameters()
-        self.setBoardCenters()
-        self.createCollider()
-        self.__collider.show()
+        self.createWallCollider()
+        self.createFloorCollider()
 
     def loadModel(self):
         self.__board = self.__gameEngine.loadModel('models/board')
@@ -30,31 +30,39 @@ class Board(object):
         self.__board.setPos(self.__position)
         self.__board.setScale(self.__scale)
 
-    def setBoardCenters(self):
-        boardSizes = self.__board.getTightBounds()
-        floorCenter = boardSizes
+    def createWallCollider(self):
+        self.__colliderWalls = self.__board.attachNewNode(CollisionNode('boardWallsCNode'))
+        minPos, maxPos = self.getSurfaceExtremePos('lWall')
+        self.__colliderWalls.node().addSolid(CollisionBox(minPos, maxPos))
+        minPos, maxPos = self.getSurfaceExtremePos('rWall')
+        self.__colliderWalls.node().addSolid(CollisionBox(minPos, maxPos))
+        minPos, maxPos = self.getSurfaceExtremePos('bWall')
+        self.__colliderWalls.node().addSolid(CollisionBox(minPos, maxPos))
 
-    def createCollider(self):
-        boardPosMin, boardPosMax = self.__board.getTightBounds()
-        boardPosMax = LPoint3f(boardPosMax.getX()/self.__scale.getX(), boardPosMax.getY()/self.__scale.getY(), boardPosMax.getZ()/self.__scale.getZ())
-        self.__collider = self.__board.attachNewNode(CollisionNode('boardCNode'))
-        # Add collider of the floor
-        minPos = LPoint3f(boardPosMin - LPoint3f(.1,.1,.1))
-        maxPos = LPoint3f(LPoint3f(minPos + LPoint3f(boardPosMax.getX(), boardPosMax.getY(), .2)) + LPoint3f(.1, .1, .1))
-        self.__collider.node().addSolid(CollisionBox(minPos, maxPos))
-        # Add collider of the left wall
-        minPos = boardPosMin
-        maxPos = LPoint3f(minPos + LPoint3f(.2, boardPosMax.getY(), boardPosMax.getZ()))
-        self.__collider.node().addSolid(CollisionBox(minPos, maxPos))
-        # Add collider of the back wall
-        minPos = LPoint3f(maxPos - LPoint3f(.2, .2, boardPosMax.getZ()))
-        maxPos = LPoint3f(minPos + LPoint3f(boardPosMax.getX(), .2, boardPosMax.getZ()))
-        self.__collider.node().addSolid(CollisionBox(minPos, maxPos))
-        # Add collider of the right wall
-        minPos = LPoint3f(boardPosMin + LPoint3f(boardPosMax.getX() - .2, 0, 0))
-        maxPos = LPoint3f(boardPosMax)
-        self.__collider.node().addSolid(CollisionBox(minPos, maxPos))
+    def createFloorCollider(self):
+        self.__colliderFloor = self.__board.attachNewNode(CollisionNode('boardFloorCNode'))
+        minPos, maxPos = self.getSurfaceExtremePos('floor')
+        self.__colliderFloor.node().addSolid(CollisionBox(minPos, maxPos))
 
+    def getSurfaceExtremePos(self, surface):
+        boardMinPos, boardMaxPos = self.__board.getTightBounds()
+        boardMaxPos = LPoint3f(divideVectorsElements(boardMaxPos, self.__scale))
+        if surface == 'floor':
+            minPos = boardMinPos
+            maxPos = LPoint3f(multiplyVectorsElements(boardMaxPos, LVector3f(1, 1, 0.15)))
+            return minPos, maxPos
+        elif surface == 'lWall':
+            minPos = boardMinPos
+            maxPos = LPoint3f(multiplyVectorsElements(boardMaxPos, LVector3f(0.04, 1, 1)))
+            return minPos, maxPos
+        elif surface == 'rWall':
+            minPos = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(0.96, 0, 0)))
+            maxPos = boardMaxPos
+            return minPos, maxPos
+        elif surface == 'bWall':
+            minPos = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0.96, 0)))
+            maxPos = boardMaxPos
+            return minPos, maxPos
 
     def draw(self):
         self.__board.reparentTo(self.__gameEngine.render)
@@ -64,4 +72,4 @@ class Board(object):
 
     def destroy(self):
         self.__board.stash()
-        self.__collider.removeNode()
+        self.__colliderWalls.removeNode()

@@ -60,7 +60,6 @@ class Ball(object):
         return sum(n*v for n,v in zip(normal, self.__velocity))
 
     def draw(self):
-        ballRoot = self.__gameEngine.render.attachNewNode('ballRoot')
         self.__ball.reparentTo(self.__gameEngine.render)
 
     def update(self, elapsedTime):

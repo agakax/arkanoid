@@ -46,10 +46,8 @@ class Paddle(object):
         self.__reflectionDirection = normal
         self.__reflectionVector = LVector3f(normal.getX()*self.__velocity.getX(), normal.getY()*self.__velocity.getY(), normal.getZ()*self.__velocity.getZ())
         self.__reflectionVector *= .05
-        #self.__velocity = LPoint3f(self.__velocity.getX() * -1.0, self.__velocity.getY(), self.__velocity.getZ())
 
     def draw(self):
-        paddleRoot = self.__gameEngine.render.attachNewNode('paddleRoot')
         self.__paddle.reparentTo(self.__gameEngine.render)
 
     def update(self, elapsedTime):

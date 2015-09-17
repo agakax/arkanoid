@@ -1,7 +1,9 @@
 __author__ = 'Kamil'
 
-from panda3d.core import LPoint3f
-from pandac.PandaModules import CollisionNode, CollisionBox, CollisionRay, ActorNode, CollisionSphere
+from panda3d.core import LPoint3f, LVector3f, BitMask32
+from pandac.PandaModules import CollisionNode, CollisionBox, CollisionRay, ActorNode, CollisionSphere, CollisionPolygon
+from Board import Board
+from MathFunctions import *
 
 class Block(object):
     _gameEngine = None
@@ -12,12 +14,13 @@ class Block(object):
     _points = 0
     _durability = 0
     _hitCollider = None
-    _floorSensor = None
+    _floorCollider = None
     _rayCollider = None
+    _ceilCollider = None
 
-    def __init__(self, gameEngine, blockId):
+    def __init__(self, gameEngine):
         self._gameEngine = gameEngine
-        self._blockNP = self._gameEngine.attachNewNode(ActorNode('block' + blockId + 'NP'))
+        self._blockNP = self._gameEngine.attachNewNode(ActorNode('blockNP'))
 
     def loadModel(self, modelPath):
         self._block = self._gameEngine.loadModel(modelPath)
@@ -28,33 +31,51 @@ class Block(object):
 
     def setModelParameters(self, position):
         self._position = position
-        self._blockNP.setPos(self._position)
-        #self._blockNP.setScale(self._scale)
         self._block.setPos(0, 0, 1)
-        #self._block.setScale(1, 1, 1)
+        self._block.setCollideMask(BitMask32.allOff())
+        self._blockNP.setPos(self._position)
+        self._blockNP.setScale(self._scale)
 
-    def createHitCollider(self, colliderNodeName):
-        self._hitCollider = self._block.attachNewNode(CollisionNode(colliderNodeName + 'CNode'))
+    def createHitCollider(self):
+        self._hitCollider = self._block.attachNewNode(CollisionNode('blockCNode'))
         minPos, maxPos = self._block.getTightBounds()
         sizes = (maxPos - minPos)/2
         self._hitCollider.node().addSolid(CollisionBox(LPoint3f(0, 0, 0), sizes.getX(), sizes.getY(), sizes.getZ()))
+        self._hitCollider.node().setCollideMask(BitMask32.allOff())
 
-    def createFloorSensor(self, colliderNodeName):
-        self._floorSensor = self._blockNP.attachNewNode(CollisionNode(colliderNodeName + 'Floor'))
-        collisionBox = CollisionSphere(0, 0, 0, 1.2)
-        self._floorSensor.node().addSolid(collisionBox)
-        collisionBox.setTangible(0)
+    def createCeilCollider(self):
+        self._ceilCollider = self._blockNP.attachNewNode(CollisionNode('blockCeil'))
+        minPos, maxPos = self._blockNP.getTightBounds()
+        sizes = LPoint3f(maxPos - minPos)/2
+        point1 = LPoint3f(multiplyVectorsElements(sizes, LPoint3f(-1, -1, 2)))
+        point2 = LPoint3f(multiplyVectorsElements(sizes, LPoint3f(1, -1, 2)))
+        point3 = LPoint3f(multiplyVectorsElements(sizes, LPoint3f(1, 1, 2)))
+        point4 = LPoint3f(multiplyVectorsElements(sizes, LPoint3f(-1, 1, 2)))
+        polygon = CollisionPolygon(point1, point2, point3, point4)
+        self._ceilCollider.node().addSolid(polygon)
+        self._ceilCollider.node().setFromCollideMask(BitMask32.allOff())
+        self._ceilCollider.node().setIntoCollideMask(Board.FLOOR_MASK)
+        polygon.setTangible(0)
 
-    def createRayCollider(self, colliderNodeName):
+    def createFloorCollider(self):
+        self._floorCollider = self._blockNP.attachNewNode(CollisionNode('blockSensor'))
+        sensor = CollisionSphere(0, 0, 0, .5)
+        self._floorCollider.node().addSolid(sensor)
+        self._floorCollider.node().setFromCollideMask(Board.FLOOR_MASK)
+        self._floorCollider.node().setIntoCollideMask(BitMask32.allOff())
+        sensor.setTangible(0)
+
+    def createRay(self):
         ray = CollisionRay(0, 0, 1, 0, 0, -1)
-        self._rayCollider = self._blockNP.attachNewNode(CollisionNode(colliderNodeName + 'Ray'))
+        self._rayCollider = self._blockNP.attachNewNode(CollisionNode('rayCollider'))
         self._rayCollider.node().addSolid(ray)
-        self._gameEngine.addFloorColliders(self._rayCollider, self._blockNP)
+        self._rayCollider.node().setFromCollideMask(Board.FLOOR_MASK)
+        self._rayCollider.node().setIntoCollideMask(BitMask32.allOff())
 
-    def setCollidersHandlers(self):
+    def setFallCollideHandling(self):
+        self._gameEngine.addFloorColliders(self._rayCollider, self._blockNP)
         self._gameEngine.setFloorColliderHandler(self._rayCollider)
-        #self._gameEngine.setColliderHandler(self._hitCollider)
-        self._gameEngine.setColliderHandler(self._floorSensor)
+        self._gameEngine.setColliderHandler(self._floorCollider)
 
     def draw(self):
         self._blockNP.reparentTo(self._gameEngine.render)
@@ -63,7 +84,10 @@ class Block(object):
         pass
 
     def destroy(self):
-        self._block.stash()
+        self._blockNP.stash()
         self._hitCollider.removeNode()
+        self._ceilCollider.removeNode()
+        self._floorCollider.removeNode()
+        self._rayCollider.removeNode()
 
 

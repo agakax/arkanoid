@@ -1,10 +1,11 @@
 __author__ = 'Kamil'
 
-from panda3d.core import LPoint3f, LVector3f
-from pandac.PandaModules import CollisionNode, CollisionBox
+from panda3d.core import LPoint3f, LVector3f, BitMask32
+from pandac.PandaModules import CollisionNode, CollisionBox, CollisionPlane, Plane
 from MathFunctions import *
 
 class Board(object):
+    FLOOR_MASK = BitMask32.bit(1)
     __gameEngine = None
     __board = None
     __position = LPoint3f(0, 0, 0)
@@ -21,7 +22,7 @@ class Board(object):
         self.createFloorCollider()
 
     def loadModel(self):
-        self.__board = self.__gameEngine.loadModel('models/board')
+        self.__board = self.__gameEngine.loadModel('models/board3')
 
     def setModelTexture(self):
         self.__gameEngine.setModelTexture(self.__board, 'textures/limba.jpg')
@@ -40,15 +41,14 @@ class Board(object):
         self.__colliderWalls.node().addSolid(CollisionBox(minPos, maxPos))
 
     def createFloorCollider(self):
-        self.__colliderFloor = self.__board.attachNewNode(CollisionNode('boardFloorCNode'))
-        minPos, maxPos = self.getSurfaceExtremePos('floor')
-        self.__colliderFloor.node().addSolid(CollisionBox(minPos, maxPos))
+        self.__colliderFloor = self.__board.find("**/floor_collider")
+        self.__colliderFloor.node().setIntoCollideMask(self.FLOOR_MASK)
 
     def getSurfaceExtremePos(self, surface):
         boardMinPos, boardMaxPos = self.__board.getTightBounds()
         boardMaxPos = LPoint3f(divideVectorsElements(boardMaxPos, self.__scale))
         if surface == 'floor':
-            minPos = boardMinPos
+            minPos = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0, 0.265)))
             maxPos = LPoint3f(multiplyVectorsElements(boardMaxPos, LVector3f(1, 1, 0.265)))
             return minPos, maxPos
         elif surface == 'lWall':

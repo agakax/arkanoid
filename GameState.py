@@ -2,7 +2,6 @@ __author__ = 'Kamil'
 
 from Scene import Scene
 import time, sys
-from pandac.PandaModules import CollisionTraverser, CollisionHandlerEvent
 
 class EnumGameStates(object):
     EXITING = 0

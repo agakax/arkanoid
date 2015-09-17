@@ -37,10 +37,10 @@ class Scene(object):
             self.__objects.append(Board(self.__gameEngine))
             self.__objects.append(Paddle(self.__gameEngine))
             self.__objects.append(Ball(self.__gameEngine))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(15, 55, 21)))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(23, 57, 37)))
-            self.__objects.append(IndestructibleBlock(self.__gameEngine, LPoint3f(18, 58, 26)))
-            self.__objects.append(IndestructibleBlock(self.__gameEngine, LPoint3f(11, 50, 31)))
+            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(15, 55, 21), 1))
+            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(23, 57, 41), 2))
+            self.__objects.append(IndestructibleBlock(self.__gameEngine, LPoint3f(18, 58, 31), 3))
+            self.__objects.append(IndestructibleBlock(self.__gameEngine, LPoint3f(11, 50, 51), 4))
             self.drawObjects()
 
     def pauseGame(self):

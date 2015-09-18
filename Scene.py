@@ -50,7 +50,7 @@ class Scene(object):
     def destroyObjects(self):
         for obj in self.__objects:
             obj.destroy()
-        self.__objects = []
+        del self.__objects[:]
 
     def drawObjects(self):
         for obj in self.__objects:

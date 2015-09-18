@@ -7,15 +7,16 @@ from MathFunctions import *
 class Board(object):
     FLOOR_MASK = BitMask32.bit(1)
     WALL_MASK = BitMask32.bit(2)
+    SCALE = 15
     __gameEngine = None
     __board = None
-    __position = LPoint3f(0, 0, 0)
-    __scale = LPoint3f(15, 15, 15)
+    __position = None
     __colliderWalls = None
     __colliderFloor = None
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
+        self.__position = LPoint3f(0, 0, 0)
         self.loadModel()
         self.setModelTexture()
         self.setModelParameters()
@@ -30,7 +31,7 @@ class Board(object):
 
     def setModelParameters(self):
         self.__board.setPos(self.__position)
-        self.__board.setScale(self.__scale)
+        self.__board.setScale(self.SCALE)
         self.__board.setCollideMask(BitMask32.allOff())
 
     def createWallCollider(self):
@@ -51,7 +52,7 @@ class Board(object):
 
     def getSurfaceExtremePos(self, surface):
         boardMinPos, boardMaxPos = self.__board.getTightBounds()
-        boardMaxPos = LPoint3f(divideVectorsElements(boardMaxPos, self.__scale))
+        boardMaxPos = LPoint3f(boardMaxPos/self.SCALE)
         if surface == 'floor':
             minPos = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0, 0.265)))
             maxPos = LPoint3f(multiplyVectorsElements(boardMaxPos, LVector3f(1, 1, 0.265)))

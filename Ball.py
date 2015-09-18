@@ -7,17 +7,19 @@ from Block import Block
 from Paddle import Paddle
 
 class Ball(object):
+    SCALE = 1
     __gameEngine = None
     __ball = None
-    __position = LPoint3f(35, 25, 4)
-    __velocity = LPoint3f(0, 0, 0) #LPoint3f(-20, 16, 0)#
-    __scale = LPoint3f(1, 1, 1)
+    __position = None
+    __velocity = None
     __wallCollider = None
     __blockCollider = None
     __paddleCollider = None
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
+        self. __position = LPoint3f(35, 25, 4)
+        self.__velocity = LPoint3f(0, 0, 0) #LPoint3f(-20, 16, 0)#
         self.loadModel()
         self.setModelTexture()
         self.setModelParemeters()
@@ -33,7 +35,7 @@ class Ball(object):
 
     def setModelParemeters(self):
         self.__ball.setPos(self.__position)
-        self.__ball.setScale(self.__scale)
+        self.__ball.setScale(self.SCALE)
 
     def createCollider(self):
         self.__wallCollider = self.__ball.attachNewNode(CollisionNode('ballWallCNode'))
@@ -84,7 +86,7 @@ class Ball(object):
 
     def getReflectionVector(self, normal):
         dotProduct = self.computeDotProduct(normal)
-        subtrahend = LPoint3f(2*dotProduct*normal.getX(), 2*dotProduct*normal.getY(), 2*dotProduct*normal.getZ())
+        subtrahend = LPoint3f(2*dotProduct*normal)
         return self.__velocity - subtrahend
 
     def computeDotProduct(self, normal):

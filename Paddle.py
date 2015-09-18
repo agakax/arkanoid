@@ -1,12 +1,14 @@
 __author__ = 'Kamil'
 
-from panda3d.core import LPoint3f, LVector3f
+from panda3d.core import LPoint3f, LVector3f, BitMask32
 from pandac.PandaModules import KeyboardButton
 from pandac.PandaModules import CollisionSphere
 from pandac.PandaModules import CollisionNode
 from math import sqrt
+from Board import Board
 
 class Paddle(object):
+    PADDLE_MASK = BitMask32.bit(4)
     __gameEngine = None
     __position = LPoint3f(45, 5, 4)
     __scale = LPoint3f(1, 1, 1)
@@ -38,6 +40,8 @@ class Paddle(object):
         sizes = (maximum - minimum)/2
         sizes = LPoint3f(sizes.getX()/self.__scale.getX(), sizes.getY()/self.__scale.getY(), sizes.getZ()/self.__scale.getZ())
         self.__collider.node().addSolid(CollisionSphere(0, 0, 0, max(sizes)))
+        self.__collider.node().setIntoCollideMask(Board.WALL_MASK)
+        self.__collider.node().setFromCollideMask(Board.WALL_MASK)
         self.__gameEngine.setColliderHandler(self.__collider)
         self.__gameEngine.defineCollisionEventHandling('paddleCNode', 'boardWallsCNode', self.collideEvent)
 

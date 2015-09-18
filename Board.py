@@ -6,6 +6,7 @@ from MathFunctions import *
 
 class Board(object):
     FLOOR_MASK = BitMask32.bit(1)
+    WALL_MASK = BitMask32.bit(2)
     __gameEngine = None
     __board = None
     __position = LPoint3f(0, 0, 0)
@@ -30,6 +31,7 @@ class Board(object):
     def setModelParameters(self):
         self.__board.setPos(self.__position)
         self.__board.setScale(self.__scale)
+        self.__board.setCollideMask(BitMask32.allOff())
 
     def createWallCollider(self):
         self.__colliderWalls = self.__board.attachNewNode(CollisionNode('boardWallsCNode'))
@@ -39,10 +41,13 @@ class Board(object):
         self.__colliderWalls.node().addSolid(CollisionBox(minPos, maxPos))
         minPos, maxPos = self.getSurfaceExtremePos('bWall')
         self.__colliderWalls.node().addSolid(CollisionBox(minPos, maxPos))
+        self.__colliderWalls.node().setIntoCollideMask(self.WALL_MASK)
+        self.__colliderWalls.node().setFromCollideMask(BitMask32.allOff())
 
     def createFloorCollider(self):
         self.__colliderFloor = self.__board.find("**/floor_collider")
         self.__colliderFloor.node().setIntoCollideMask(self.FLOOR_MASK)
+        self.__colliderFloor.node().setFromCollideMask(BitMask32.allOff())
 
     def getSurfaceExtremePos(self, surface):
         boardMinPos, boardMaxPos = self.__board.getTightBounds()

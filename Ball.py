@@ -1,7 +1,9 @@
 __author__ = 'Kamil'
 
-from panda3d.core import LPoint3f
+from panda3d.core import LPoint3f, BitMask32
 from pandac.PandaModules import CollisionNode, CollisionSphere
+from Board import Board
+from Block import Block
 
 class Ball(object):
     __gameEngine = None
@@ -9,7 +11,8 @@ class Ball(object):
     __position = LPoint3f(35, 25, 4)
     __velocity = LPoint3f(-20, 16, 0)
     __scale = LPoint3f(1, 1, 1)
-    __collider = None
+    __wallCollider = None
+    __blockCollider = None
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
@@ -31,9 +34,15 @@ class Ball(object):
         self.__ball.setScale(self.__scale)
 
     def createCollider(self):
-        self.__collider = self.__ball.attachNewNode(CollisionNode('ballCNode'))
+        self.__wallCollider = self.__ball.attachNewNode(CollisionNode('ballWallCNode'))
         radius = self.getBallRadius()
-        self.__collider.node().addSolid(CollisionSphere(0, 0, 0, radius))
+        self.__wallCollider.node().addSolid(CollisionSphere(0, 0, 0, radius))
+        self.__wallCollider.node().setFromCollideMask(Board.WALL_MASK)
+        self.__wallCollider.node().setIntoCollideMask(BitMask32.allOff())
+        self.__blockCollider = self.__ball.attachNewNode(CollisionNode('ballBlockCNode'))
+        self.__blockCollider.node().addSolid(CollisionSphere(0, 0, 0, radius))
+        self.__blockCollider.node().setFromCollideMask(Block.BLOCK_MASK)
+        self.__blockCollider.node().setIntoCollideMask(BitMask32.allOff())
 
     def getBallRadius(self):
         minimum, maximum = self.__ball.getTightBounds()
@@ -41,13 +50,28 @@ class Ball(object):
         return max(radius.getX(), radius.getY(), radius.getZ())
 
     def setColliderHandler(self):
-        self.__gameEngine.setColliderHandler(self.__collider)
+        self.__gameEngine.setColliderHandler(self.__wallCollider)
+        self.__gameEngine.setColliderHandler(self.__blockCollider)
 
     def defineCollisionEventHandling(self):
-        self.__gameEngine.defineCollisionEventHandling('ballCNode', 'paddleCNode', self.collideEvent)
-        self.__gameEngine.defineCollisionEventHandling('ballCNode', 'boardWallsCNode', self.collideEvent)
+        self.__gameEngine.defineCollisionEventHandling('ballWallCNode', 'paddleCNode', self.collideEvent)
+        self.__gameEngine.defineCollisionEventHandling('ballWallCNode', 'boardWallsCNode', self.collideEvent)
+        self.__gameEngine.defineCollisionEventHandling('ballBlockCNode', 'blockCNode', self.hitBlock)
+
+        #self.__gameEngine.defineCollisionEventHandling('ballBlockCNode', 'blockCNode', self.hitBlock2)
 
     def collideEvent(self, entry):
+        normal = entry.getContactNormal(entry.getIntoNodePath())
+        self.__velocity = self.getReflectionVector(normal)
+        return entry
+
+    def hitBlock(self, entry):
+        normal = entry.getContactNormal(entry.getIntoNodePath())
+        self.__velocity = self.getReflectionVector(normal)
+        args = [entry]
+        self.__gameEngine.generateEvent('hitBlock', args)
+
+    def hitBlock2(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())
         self.__velocity = self.getReflectionVector(normal)
 
@@ -69,4 +93,4 @@ class Ball(object):
 
     def destroy(self):
         self.__ball.stash()
-        self.__collider.removeNode()
+        self.__wallCollider.removeNode()

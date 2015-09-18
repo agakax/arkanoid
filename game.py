@@ -4,14 +4,14 @@ __author__ = 'Kamila'
 #loadPrcFileData("", "want-tk #t")
 
 from direct.showbase.ShowBase import ShowBase
-from pandac.PandaModules import ClockObject, CollisionHandlerEvent, CollisionTraverser, CollisionHandlerGravity
+from pandac.PandaModules import ClockObject, CollisionHandlerEvent, CollisionTraverser, CollisionHandlerFloor
 from pandac.PandaModules import PointLight
 from GameState import GameState
 
 class ArkanoidGame(ShowBase):
     __clock = ClockObject.getGlobalClock()
     __collisionHandler = CollisionHandlerEvent()
-    __collisionFloorHandler = CollisionHandlerGravity()
+    __collisionFloorHandler = CollisionHandlerFloor()
     __gameState = None
     def __init__(self):
         ShowBase.__init__(self)
@@ -24,8 +24,9 @@ class ArkanoidGame(ShowBase):
         self.__gameState = GameState(self)
 
     def setGravity(self):
-        self.__collisionFloorHandler.setGravity(9.81)
-        self.__collisionFloorHandler.setMaxVelocity(100)
+        #self.__collisionFloorHandler.setGravity(9.81)
+        self.__collisionFloorHandler.setMaxVelocity(15)
+        self.__collisionFloorHandler.setOffset(1.0)
 
     def setLight(self):
         pLight = PointLight('pLight')
@@ -55,6 +56,9 @@ class ArkanoidGame(ShowBase):
     def defineCollisionEventHandling(self, fromCNode, intoCNode, collisionHandling):
         eventText = fromCNode + '-into-' + intoCNode
         self.accept(eventText, collisionHandling)
+
+    def generateEvent(self, event, args):
+        self.messenger.send(event, args)
 
     def getTime(self):
         return self.__clock.getDt()

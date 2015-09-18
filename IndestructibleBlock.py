@@ -11,7 +11,5 @@ class IndestructibleBlock(Block):
         self.setModelTexture('textures/bricks.jpg')
         self.setModelParameters(position)
         self.createHitCollider(blockId)
-        self.createCeilCollider(blockId)
-        self.createFloorCollider(blockId)
         self.createRay(blockId)
         self.setFallCollideHandling()

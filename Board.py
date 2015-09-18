@@ -76,5 +76,5 @@ class Board(object):
         pass
 
     def destroy(self):
-        self.__board.stash()
-        self.__colliderWalls.removeNode()
+        self.__board.removeNode()
+        #self.__colliderWalls.removeNode()

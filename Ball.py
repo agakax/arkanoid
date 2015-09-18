@@ -4,15 +4,17 @@ from panda3d.core import LPoint3f, BitMask32
 from pandac.PandaModules import CollisionNode, CollisionSphere
 from Board import Board
 from Block import Block
+from Paddle import Paddle
 
 class Ball(object):
     __gameEngine = None
     __ball = None
     __position = LPoint3f(35, 25, 4)
-    __velocity = LPoint3f(-20, 16, 0)
+    __velocity = LPoint3f(0, 0, 0) #LPoint3f(-20, 16, 0)#
     __scale = LPoint3f(1, 1, 1)
     __wallCollider = None
     __blockCollider = None
+    __paddleCollider = None
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
@@ -43,6 +45,10 @@ class Ball(object):
         self.__blockCollider.node().addSolid(CollisionSphere(0, 0, 0, radius))
         self.__blockCollider.node().setFromCollideMask(Block.BLOCK_MASK)
         self.__blockCollider.node().setIntoCollideMask(BitMask32.allOff())
+        self.__paddleCollider = self.__ball.attachNewNode(CollisionNode('ballPaddleCNode'))
+        self.__paddleCollider.node().addSolid(CollisionSphere(0, 0, 0, radius))
+        self.__paddleCollider.node().setFromCollideMask(Paddle.PADDLE_MASK)
+        self.__paddleCollider.node().setIntoCollideMask(BitMask32.allOff())
 
     def getBallRadius(self):
         minimum, maximum = self.__ball.getTightBounds()
@@ -52,9 +58,10 @@ class Ball(object):
     def setColliderHandler(self):
         self.__gameEngine.setColliderHandler(self.__wallCollider)
         self.__gameEngine.setColliderHandler(self.__blockCollider)
+        self.__gameEngine.setColliderHandler(self.__paddleCollider)
 
     def defineCollisionEventHandling(self):
-        self.__gameEngine.defineCollisionEventHandling('ballWallCNode', 'paddleCNode', self.collideEvent)
+        self.__gameEngine.defineCollisionEventHandling('ballPaddleCNode', 'paddleBallCNode', self.collideEvent)
         self.__gameEngine.defineCollisionEventHandling('ballWallCNode', 'boardWallsCNode', self.collideEvent)
         self.__gameEngine.defineCollisionEventHandling('ballBlockCNode', 'blockCNode', self.hitBlock)
 
@@ -92,5 +99,5 @@ class Ball(object):
         self.__ball.setPos(self.__position)
 
     def destroy(self):
-        self.__ball.stash()
-        self.__wallCollider.removeNode()
+        self.__ball.removeNode()
+        #self.__wallCollider.removeNode()

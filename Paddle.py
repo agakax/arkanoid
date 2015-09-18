@@ -4,6 +4,7 @@ from panda3d.core import LPoint3f, LVector3f, BitMask32
 from pandac.PandaModules import KeyboardButton
 from pandac.PandaModules import CollisionSphere
 from pandac.PandaModules import CollisionNode
+from MathFunctions import *
 from math import sqrt
 from Board import Board
 
@@ -15,7 +16,8 @@ class Paddle(object):
     __velocity = LVector3f(25.0, 0, 0)
     __reflectionVector = LVector3f(0, 0, 0)
     __reflectionDirection = LVector3f(0, 0, 0)
-    __collider = None
+    __ballCollider = None
+    __wallCollider = None
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
@@ -35,15 +37,22 @@ class Paddle(object):
         self.__paddle.setPos(self.__position)
 
     def createCollider(self):
-        self.__collider = self.__paddle.attachNewNode(CollisionNode('paddleCNode'))
+        self.__ballCollider = self.__paddle.attachNewNode(CollisionNode('paddleBallCNode'))
         minimum, maximum = self.__paddle.getTightBounds()
         sizes = (maximum - minimum)/2
-        sizes = LPoint3f(sizes.getX()/self.__scale.getX(), sizes.getY()/self.__scale.getY(), sizes.getZ()/self.__scale.getZ())
-        self.__collider.node().addSolid(CollisionSphere(0, 0, 0, max(sizes)))
-        self.__collider.node().setIntoCollideMask(Board.WALL_MASK)
-        self.__collider.node().setFromCollideMask(Board.WALL_MASK)
-        self.__gameEngine.setColliderHandler(self.__collider)
-        self.__gameEngine.defineCollisionEventHandling('paddleCNode', 'boardWallsCNode', self.collideEvent)
+        sizes = LPoint3f(divideVectorsElements(sizes, self.__scale))
+        self.__ballCollider.node().addSolid(CollisionSphere(0, 0, 0, max(sizes)))
+        self.__ballCollider.node().setIntoCollideMask(self.PADDLE_MASK)
+        self.__ballCollider.node().setFromCollideMask(BitMask32.allOff())
+
+        self.__wallCollider = self.__paddle.attachNewNode(CollisionNode('paddleWallCNode'))
+        self.__wallCollider.node().addSolid(CollisionSphere(0, 0, 0, max(sizes)))
+        self.__wallCollider.node().setIntoCollideMask(BitMask32.allOff())
+        self.__wallCollider.node().setFromCollideMask(Board.WALL_MASK)
+
+        self.__gameEngine.setColliderHandler(self.__ballCollider)
+        self.__gameEngine.setColliderHandler(self.__wallCollider)
+        self.__gameEngine.defineCollisionEventHandling('paddleWallCNode', 'boardWallsCNode', self.collideEvent)
 
     def collideEvent(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())
@@ -57,8 +66,8 @@ class Paddle(object):
     def update(self, elapsedTime):
         is_down = self.__gameEngine.mouseWatcherNode.is_button_down
         moveVector = LPoint3f(0, 0, 0)
-        if self.reflectionVectorLength() > 0.1:
-            moveVector = LVector3f(self.__reflectionDirection.getX()*self.__velocity.getX(), self.__reflectionDirection.getY()*self.__velocity.getY(), self.__reflectionDirection.getZ()*self.__velocity.getZ())
+        if self.reflectionVectorLength() > 0.5:
+            moveVector = LVector3f(multiplyVectorsElements(self.__reflectionDirection, self.__velocity))
             moveVector *= elapsedTime
             self.__reflectionVector -= moveVector
         elif is_down(KeyboardButton.left()):
@@ -72,5 +81,5 @@ class Paddle(object):
         return sqrt(sum(i*i for i in self.__reflectionVector))
 
     def destroy(self):
-        self.__paddle.stash()
-        self.__collider.removeNode()
+        self.__paddle.removeNode()
+        #self.__ballCollider.removeNode()

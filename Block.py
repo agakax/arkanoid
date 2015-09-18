@@ -8,10 +8,10 @@ from MathFunctions import *
 
 class Block(object):
     BLOCK_MASK = BitMask32.bit(3)
+    SCALE = 3
     _gameEngine = None
     _block = None
     _position = LPoint3f(0, 0, 0)
-    _scale = LPoint3f(1, 1, 1)
     _points = 0
     _durability = 0
     _hitCollider = None
@@ -30,12 +30,13 @@ class Block(object):
     def setModelParameters(self, position):
         self._position = position
         self._block.setPos(self._position)
+        self._block.setScale(self.SCALE)
         self._block.setCollideMask(BitMask32.allOff())
 
     def createHitCollider(self, blockId):
         self._hitCollider = self._block.attachNewNode(CollisionNode('blockCNode'))
         minPos, maxPos = self._block.getTightBounds()
-        sizes = (maxPos - minPos)/2
+        sizes = (maxPos - minPos)/(2*self.SCALE)
         self._hitCollider.node().addSolid(CollisionBox(LPoint3f(0, 0, 0), sizes.getX(), sizes.getY(), sizes.getZ()))
         self._hitCollider.node().setIntoCollideMask(self.BLOCK_MASK)
         self._hitCollider.node().setFromCollideMask(BitMask32.allOff())
@@ -58,6 +59,7 @@ class Block(object):
 
     def defineCollisionEventHandling(self, handling):
         self._gameEngine.accept('hitBlock', handling)
+
     def draw(self):
         self._block.reparentTo(self._gameEngine.render)
 
@@ -65,8 +67,8 @@ class Block(object):
         pass
 
     def destroy(self):
-        self._block.stash()
-        self._hitCollider.removeNode()
-        if self._ceilCollider != None:
-            self._ceilCollider.removeNode()
-        self._rayCollider.removeNode()
+        self._block.removeNode()
+        #self._hitCollider.removeNode()
+        #if self._ceilCollider != None:
+        #    self._ceilCollider.removeNode()
+        #self._rayCollider.removeNode()

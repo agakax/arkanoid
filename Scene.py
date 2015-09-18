@@ -4,6 +4,7 @@ from panda3d.core import LPoint3f
 from Board import Board
 from Paddle import Paddle
 from Ball import Ball
+from LevelBlocks import LevelBlocks
 from DestructibleBlock import DestructibleBlock
 from IndestructibleBlock import IndestructibleBlock
 
@@ -24,7 +25,7 @@ class Scene(object):
         self.__gameEngine.accept('r', self.restart)
 
     def setCamera(self):
-        #self.__gameEngine.disableMouse()
+        self.__gameEngine.disableMouse()
         self.__gameEngine.camera.setPos(self.__cameraPosition)
         self.__gameEngine.camera.setHpr(self.__cameraDirection)
 
@@ -39,17 +40,8 @@ class Scene(object):
             self.__objects.append(Board(self.__gameEngine))
             self.__objects.append(Paddle(self.__gameEngine))
             self.__objects.append(Ball(self.__gameEngine))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(15, 55, 51), 1))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(23, 57, 91), 2))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(15, 55, 71), 5))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(18, 55, 51), 1))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(28, 57, 91), 2))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(31, 55, 71), 5))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(35, 55, 51), 1))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(41, 57, 91), 2))
-            self.__objects.append(DestructibleBlock(self.__gameEngine, LPoint3f(45, 55, 71), 5))
-            self.__objects.append(IndestructibleBlock(self.__gameEngine, LPoint3f(15, 55, 81), 3))
-            self.__objects.append(IndestructibleBlock(self.__gameEngine, LPoint3f(11, 50, 101), 4))
+            self.__objects.append(LevelBlocks(self.__gameEngine))
+            self.__objects[3].loadLevelBlocks()
             self.drawObjects()
 
     def pauseGame(self):

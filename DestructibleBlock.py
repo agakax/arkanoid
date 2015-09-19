@@ -14,9 +14,8 @@ class DestructibleBlock(Block):
         self.createCeilCollider(blockId)
         self.createRay(blockId)
         self.setFallCollideHandling()
-        self.defineCollisionEventHandling(self.ballHit)
 
-    def ballHit(self, entry):
+    def ballHit(self):
         self._durability -= 1
         if self._durability == 0:
             self.destroy()

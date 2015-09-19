@@ -2,8 +2,7 @@ __author__ = 'Kamil'
 
 from panda3d.core import LPoint3f, LVector3f, BitMask32
 from pandac.PandaModules import KeyboardButton
-from pandac.PandaModules import CollisionSphere
-from pandac.PandaModules import CollisionNode
+from pandac.PandaModules import CollisionSphere, CollisionNode, NodePath
 from MathFunctions import *
 from math import sqrt
 from Board import Board
@@ -12,6 +11,8 @@ class Paddle(object):
     PADDLE_MASK = BitMask32.bit(4)
     SCALE = 1
     __gameEngine = None
+    __paddleNP = None
+    __paddle = None
     __position = None
     __velocity = None
     __reflectionVector = None
@@ -31,14 +32,18 @@ class Paddle(object):
         self.createCollider()
 
     def loadModel(self):
+        self.__paddleNP = NodePath('paddleNP')
+        self.__paddleNP.reparentTo(self.__gameEngine.render)
         self.__paddle = self.__gameEngine.loadModel('models/ball_v1')
+        self.__paddle.reparentTo(self.__paddleNP)
 
     def setModelTexture(self):
         self.__gameEngine.setModelTexture(self.__paddle, 'textures/iron05.jpg')
 
     def setModelParameters(self):
-        self.__paddle.setScale(self.SCALE)
-        self.__paddle.setPos(self.__position)
+        self.__paddleNP.setScale(self.SCALE)
+        self.__paddleNP.setPos(self.__position)
+        self.__paddle.setCollideMask(BitMask32.allOff())
 
     def createCollider(self):
         self.__ballCollider = self.__paddle.attachNewNode(CollisionNode('paddleBallCNode'))
@@ -53,16 +58,17 @@ class Paddle(object):
         self.__wallCollider.node().addSolid(CollisionSphere(0, 0, 0, max(sizes)))
         self.__wallCollider.node().setIntoCollideMask(BitMask32.allOff())
         self.__wallCollider.node().setFromCollideMask(Board.WALL_MASK)
+        self.__gameEngine.addWallColliders(self.__wallCollider, self.__paddleNP)
 
         self.__gameEngine.setColliderHandler(self.__ballCollider)
-        self.__gameEngine.setColliderHandler(self.__wallCollider)
-        self.__gameEngine.defineCollisionEventHandling('paddleWallCNode', 'boardWallsCNode', self.collideEvent)
+        self.__gameEngine.setWallColliderHandler(self.__wallCollider)
+        #self.__gameEngine.defineCollisionEventHandling('paddleWallCNode', 'boardWallsCNode', self.collideEvent)
 
     def collideEvent(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())
         self.__reflectionDirection = normal
         self.__reflectionVector = LVector3f(multiplyVectorsElements(normal, self.__velocity))
-        self.__reflectionVector *= .1
+        self.__reflectionVector *= .05
 
     def draw(self):
         self.__paddle.reparentTo(self.__gameEngine.render)
@@ -79,7 +85,7 @@ class Paddle(object):
         elif is_down(KeyboardButton.right()):
             moveVector = self.__velocity*elapsedTime
         self.__position += moveVector
-        self.__paddle.setPos(self.__position)
+        self.__paddle.setFluidPos(self.__position)
 
     def reflectionVectorLength(self):
         return sqrt(sum(i*i for i in self.__reflectionVector))

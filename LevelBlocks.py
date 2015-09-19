@@ -3,6 +3,7 @@ __author__ = 'Kamil'
 from os import listdir
 from os.path import isfile, join
 from panda3d.core import LPoint3f
+import re
 from Block import Block
 from DestructibleBlock import DestructibleBlock
 from IndestructibleBlock import IndestructibleBlock
@@ -16,6 +17,7 @@ class LevelBlocks(object):
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
         self.getLevelsList()
+        self.defineCollisionEventHandling()
 
     def getLevelsList(self):
         self.__levelsFiles = [ file for file in listdir('levels/') if isfile(join('levels/', file))]
@@ -25,15 +27,17 @@ class LevelBlocks(object):
         x = 0
         y = 0
         z = 0
+        blockId = 0
         for line in levelFile:
             if line.strip():
                 line = line.strip()
                 row = line.split(',')
                 for el in row:
                     pos = self.computePosition(x, y, z)
-                    block = self.createBlock(el, pos)
+                    block = self.createBlock(el, pos, blockId)
                     if block != None:
                         self.__blocks.append(block)
+                        blockId += 1
                     x += 1
                 x = 0
                 y += 1
@@ -47,13 +51,21 @@ class LevelBlocks(object):
         multiplier = Block.SCALE * 2
         return LPoint3f(startPos[0] + (x*multiplier), startPos[1] - (y*multiplier), startPos[2] + (z*multiplier*2))
 
-    def createBlock(self, element, position):
+    def createBlock(self, element, position, blockId):
         if element == '1':
-            return DestructibleBlock(self.__gameEngine, position, 0)
+            return DestructibleBlock(self.__gameEngine, position, blockId)
         elif element == '2':
-            return IndestructibleBlock(self.__gameEngine, position, 1)
+            return IndestructibleBlock(self.__gameEngine, position, blockId)
         else:
             return None
+
+    def defineCollisionEventHandling(self):
+        self.__gameEngine.accept('hitBlock', self.ballHitBlock)
+
+    def ballHitBlock(self, entry):
+        blockName = entry.getIntoNodePath().getName()
+        blockId = int(re.findall(r'\d+', blockName)[0])
+        self.__blocks[blockId].ballHit()
 
     def draw(self):
         for block in self.__blocks:

@@ -34,7 +34,7 @@ class Block(object):
         self._block.setCollideMask(BitMask32.allOff())
 
     def createHitCollider(self, blockId):
-        self._hitCollider = self._block.attachNewNode(CollisionNode('blockCNode'))
+        self._hitCollider = self._block.attachNewNode(CollisionNode('blockCNode' + str(blockId)))
         minPos, maxPos = self._block.getTightBounds()
         sizes = (maxPos - minPos)/(2*self.SCALE)
         self._hitCollider.node().addSolid(CollisionBox(LPoint3f(0, 0, 0), sizes.getX(), sizes.getY(), sizes.getZ()))
@@ -56,9 +56,6 @@ class Block(object):
     def setFallCollideHandling(self):
         self._gameEngine.addFloorColliders(self._rayCollider, self._block)
         self._gameEngine.setFloorColliderHandler(self._rayCollider)
-
-    def defineCollisionEventHandling(self, handling):
-        self._gameEngine.accept('hitBlock', handling)
 
     def draw(self):
         self._block.reparentTo(self._gameEngine.render)

@@ -13,3 +13,6 @@ class IndestructibleBlock(Block):
         self.createHitCollider(blockId)
         self.createRay(blockId)
         self.setFallCollideHandling()
+
+    def ballHit(self):
+        pass

@@ -15,11 +15,12 @@ class Ball(object):
     __wallCollider = None
     __blockCollider = None
     __paddleCollider = None
+    refl = False
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
         self. __position = LPoint3f(35, 25, 4)
-        self.__velocity = LPoint3f(0, 0, 0) #LPoint3f(-20, 16, 0)#
+        self.__velocity = LPoint3f(-20, 16, 0)#LPoint3f(0, 0, 0) #
         self.loadModel()
         self.setModelTexture()
         self.setModelParemeters()
@@ -58,16 +59,14 @@ class Ball(object):
         return max(radius.getX(), radius.getY(), radius.getZ())
 
     def setColliderHandler(self):
+        self.__gameEngine.setColliderHandler(self.__paddleCollider)
         self.__gameEngine.setColliderHandler(self.__wallCollider)
         self.__gameEngine.setColliderHandler(self.__blockCollider)
-        self.__gameEngine.setColliderHandler(self.__paddleCollider)
 
     def defineCollisionEventHandling(self):
         self.__gameEngine.defineCollisionEventHandling('ballPaddleCNode', 'paddleBallCNode', self.collideEvent)
         self.__gameEngine.defineCollisionEventHandling('ballWallCNode', 'boardWallsCNode', self.collideEvent)
-        self.__gameEngine.defineCollisionEventHandling('ballBlockCNode', 'blockCNode', self.hitBlock)
-
-        #self.__gameEngine.defineCollisionEventHandling('ballBlockCNode', 'blockCNode', self.hitBlock2)
+        self.__gameEngine.defineCollisionEventHandlingFrom('ballBlockCNode', self.hitBlock)
 
     def collideEvent(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())
@@ -77,16 +76,13 @@ class Ball(object):
     def hitBlock(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())
         self.__velocity = self.getReflectionVector(normal)
+        self.refl = True
         args = [entry]
         self.__gameEngine.generateEvent('hitBlock', args)
 
-    def hitBlock2(self, entry):
-        normal = entry.getContactNormal(entry.getIntoNodePath())
-        self.__velocity = self.getReflectionVector(normal)
-
     def getReflectionVector(self, normal):
         dotProduct = self.computeDotProduct(normal)
-        subtrahend = LPoint3f(2*dotProduct*normal)
+        subtrahend = LPoint3f(2*dotProduct*normal[0], 2*dotProduct*normal[1], 2*dotProduct*normal[2])
         return self.__velocity - subtrahend
 
     def computeDotProduct(self, normal):
@@ -96,9 +92,15 @@ class Ball(object):
         self.__ball.reparentTo(self.__gameEngine.render)
 
     def update(self, elapsedTime):
+        if self.__velocity[0] == 0:
+            self.__velocity[0] += 1
+            self.__velocity[1] -= 1
+        if self.__velocity[1] == 0:
+            self.__velocity[1] += 1
+            self.__velocity[0] -= 1
         moveVector = self.__velocity*elapsedTime
         self.__position = self.__ball.getPos() + moveVector
-        self.__ball.setPos(self.__position)
+        self.__ball.setFluidPos(self.__position)
 
     def destroy(self):
         self.__ball.removeNode()

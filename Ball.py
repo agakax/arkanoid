@@ -19,8 +19,8 @@ class Ball(object):
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
-        self. __position = LPoint3f(35, 25, 4)
-        self.__velocity = LPoint3f(-20, 0, 0)#LPoint3f(0, 0, 0) #
+        self. __position = LPoint3f(50, 25, 4)
+        self.__velocity = LPoint3f(-18, 18, 0)#LPoint3f(0, 0, 0) #
         self.loadModel()
         self.setModelTexture()
         self.setModelParemeters()

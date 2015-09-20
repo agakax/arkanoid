@@ -1,7 +1,7 @@
 __author__ = 'Kamil'
 
 from panda3d.core import LPoint3f, LVector3f, BitMask32
-from pandac.PandaModules import CollisionNode, CollisionBox, CollisionPlane, Plane
+from pandac.PandaModules import CollisionNode, CollisionPolygon
 from MathFunctions import *
 
 class Board(object):
@@ -36,12 +36,12 @@ class Board(object):
 
     def createWallCollider(self):
         self.__colliderWalls = self.__board.attachNewNode(CollisionNode('boardWallsCNode'))
-        minPos, maxPos = self.getSurfaceExtremePos('lWall')
-        self.__colliderWalls.node().addSolid(CollisionBox(minPos, maxPos))
-        minPos, maxPos = self.getSurfaceExtremePos('rWall')
-        self.__colliderWalls.node().addSolid(CollisionBox(minPos, maxPos))
-        minPos, maxPos = self.getSurfaceExtremePos('bWall')
-        self.__colliderWalls.node().addSolid(CollisionBox(minPos, maxPos))
+        point1, point2, point3, point4 = self.getWallVertices('left')
+        self.__colliderWalls.node().addSolid(CollisionPolygon(point1, point2, point3, point4))
+        point1, point2, point3, point4 = self.getWallVertices('right')
+        self.__colliderWalls.node().addSolid(CollisionPolygon(point1, point2, point3, point4))
+        point1, point2, point3, point4 = self.getWallVertices('back')
+        self.__colliderWalls.node().addSolid(CollisionPolygon(point1, point2, point3, point4))
         self.__colliderWalls.node().setIntoCollideMask(self.WALL_MASK)
         self.__colliderWalls.node().setFromCollideMask(BitMask32.allOff())
 
@@ -50,21 +50,27 @@ class Board(object):
         self.__colliderFloor.node().setIntoCollideMask(self.FLOOR_MASK)
         self.__colliderFloor.node().setFromCollideMask(BitMask32.allOff())
 
-    def getSurfaceExtremePos(self, surface):
+    def getWallVertices(self, wall):
         boardMinPos, boardMaxPos = self.__board.getTightBounds()
         boardMaxPos = LPoint3f(boardMaxPos/self.SCALE)
-        if surface == 'lWall':
-            minPos = boardMinPos
-            maxPos = LPoint3f(multiplyVectorsElements(boardMaxPos, LVector3f(0.04, 1, 1)))
-            return minPos, maxPos
-        elif surface == 'rWall':
-            minPos = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(0.96, 0, 0)))
-            maxPos = boardMaxPos
-            return minPos, maxPos
-        elif surface == 'bWall':
-            minPos = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0.96, 0)))
-            maxPos = boardMaxPos
-            return minPos, maxPos
+        if wall == 'left':
+            point1 = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(0.0027*self.SCALE, 0, 0)))
+            point2 = LPoint3f(point1 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0, 1)))
+            point3 = LPoint3f(point2 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 1, 0)))
+            point4 = LPoint3f(point1 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 1, 0)))
+            return point1, point2, point3, point4
+        elif wall == 'right':
+            point1 = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(1 - (0.0027*self.SCALE) ,0 ,0)))
+            point2 = LPoint3f(point1 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0, 1)))
+            point3 = LPoint3f(point2 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 1, 0)))
+            point4 = LPoint3f(point1 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 1, 0)))
+            return point1, point2, point3, point4
+        elif wall == 'back':
+            point1 = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(0, 1 - (0.0027*self.SCALE), 0)))
+            point2 = LPoint3f(point1 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0, 1)))
+            point3 = LPoint3f(point2 + multiplyVectorsElements(boardMaxPos, LVector3f(1, 0, 0)))
+            point4 = LPoint3f(point1 + multiplyVectorsElements(boardMaxPos, LVector3f(1, 0, 0)))
+            return point1, point2, point3, point4
 
     def draw(self):
         self.__board.reparentTo(self.__gameEngine.render)

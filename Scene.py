@@ -25,7 +25,7 @@ class Scene(object):
         self.__gameEngine.accept('r', self.restart)
 
     def setCamera(self):
-        self.__gameEngine.disableMouse()
+        #self.__gameEngine.disableMouse()
         self.__gameEngine.camera.setPos(self.__cameraPosition)
         self.__gameEngine.camera.setHpr(self.__cameraDirection)
 

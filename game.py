@@ -16,6 +16,7 @@ class ArkanoidGame(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
         self.cTrav = CollisionTraverser()
+        self.cTrav.setRespectPrevTransform(True)
         self.setGravity()
         self.setLight()
         self.__collisionHandler.addInPattern('%fn-into-%in')

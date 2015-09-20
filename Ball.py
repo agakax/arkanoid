@@ -15,12 +15,13 @@ class Ball(object):
     __wallCollider = None
     __blockCollider = None
     __paddleCollider = None
-    refl = False
+    __collisionAppear = None
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
-        self. __position = LPoint3f(50, 25, 4)
-        self.__velocity = LPoint3f(-18, 18, 0)#LPoint3f(0, 0, 0) #
+        self. __position = LPoint3f(47, 15, 4)
+        self.__velocity = LPoint3f(-13, 23, 0)#LPoint3f(0, 0, 0) #
+        self.__collisionAppear = False
         self.loadModel()
         self.setModelTexture()
         self.setModelParemeters()
@@ -67,15 +68,16 @@ class Ball(object):
         self.__gameEngine.defineIntoCollisionEventHandling('ballPaddleCNode', 'paddleBallCNode', self.collideEvent)
         self.__gameEngine.defineIntoCollisionEventHandling('ballWallCNode', 'boardWallsCNode', self.collideEvent)
         self.__gameEngine.defineIntoCollisionEventHandlingFrom('ballBlockCNode', self.hitBlock)
-       # self.__gameEngine.defineAgainCollisionEventHangling('ballPaddleCNode', 'boardWallsCNode', self)
 
     def collideEvent(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())
         self.__velocity = self.getReflectionVector(normal)
 
     def hitBlock(self, entry):
-        self.collideEvent(entry)
-        self.__gameEngine.generateEvent('hitBlock', [entry])
+        if not self.__collisionAppear:
+            self.__collisionAppear = True
+            self.collideEvent(entry)
+            self.__gameEngine.generateEvent('hitBlock', [entry])
 
     def getReflectionVector(self, normal):
         dotProduct = self.computeDotProduct(normal)
@@ -89,6 +91,7 @@ class Ball(object):
         self.__ball.reparentTo(self.__gameEngine.render)
 
     def update(self, elapsedTime):
+        self.__collisionAppear = False
         if self.__velocity[0] == 0:
             self.__velocity[0] += 3
             self.__velocity[1] -= self.__velocity[1]/abs(self.__velocity[1])*3
@@ -107,4 +110,3 @@ class Ball(object):
 
     def destroy(self):
         self.__ball.removeNode()
-        #self.__wallCollider.removeNode()

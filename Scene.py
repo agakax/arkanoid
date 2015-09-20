@@ -21,11 +21,10 @@ class Scene(object):
         self.setCamera()
         self.__gameEngine.taskMgr.add(self.updateTask, "updateTask")
         self.__gameEngine.accept('a', self.switchColliderDisplay)
-        #self.__gameEngine.accept('d', self.hit)
         self.__gameEngine.accept('r', self.restart)
 
     def setCamera(self):
-        #self.__gameEngine.disableMouse()
+        self.__gameEngine.disableMouse()
         self.__gameEngine.camera.setPos(self.__cameraPosition)
         self.__gameEngine.camera.setHpr(self.__cameraDirection)
 
@@ -73,11 +72,6 @@ class Scene(object):
             self.__gameEngine.cTrav.hideCollisions()
             l=self.__gameEngine.render.findAllMatches("**/+CollisionNode")
             for cn in l: cn.hide()
-
-    #def hit(self):
-        #durability = self.__objects[3].ballHit()
-        #if durability == 0:
-           # self.__objects.remove(self.__objects[3])
 
     def restart(self):
         self.destroyObjects()

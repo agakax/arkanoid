@@ -18,7 +18,7 @@ class Block(object):
     _rayCollider = None
     _ceilCollider = None
 
-    def __init__(self, gameEngine, blockId):
+    def __init__(self, gameEngine):
         self._gameEngine = gameEngine
 
     def loadModel(self, modelPath):
@@ -41,12 +41,12 @@ class Block(object):
         self._hitCollider.node().setIntoCollideMask(self.BLOCK_MASK)
         self._hitCollider.node().setFromCollideMask(BitMask32.allOff())
 
-    def createCeilCollider(self, blockId):
+    def createCeilCollider(self):
         self._ceilCollider = self._block.find("**/ceil_collider")
         self._ceilCollider.node().setFromCollideMask(BitMask32.allOff())
         self._ceilCollider.node().setIntoCollideMask(Board.FLOOR_MASK)
 
-    def createRay(self, blockId):
+    def createRay(self):
         ray = CollisionRay(0, 0, 0, 0, 0, -1)
         self._rayCollider = self._block.attachNewNode(CollisionNode('rayCollider'))
         self._rayCollider.node().addSolid(ray)

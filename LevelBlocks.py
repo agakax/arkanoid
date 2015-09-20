@@ -47,9 +47,9 @@ class LevelBlocks(object):
                 z += 1
 
     def computePosition(self, x, y, z):
-        startPos = LPoint3f(10, 65, 15)
+        startPos = LPoint3f(10, 65, 10)
         multiplier = Block.SCALE * 2
-        return LPoint3f(startPos[0] + (x*multiplier), startPos[1] - (y*multiplier), startPos[2] + (z*multiplier*2))
+        return LPoint3f(startPos[0] + (x*multiplier), startPos[1] - (y*multiplier), startPos[2] + (z*multiplier))
 
     def createBlock(self, element, position, blockId):
         if element == '1':

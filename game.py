@@ -21,8 +21,6 @@ class ArkanoidGame(ShowBase):
         self.setLight()
         self.__collisionHandler.addInPattern('%fn-into-%in')
         self.__collisionHandler.addInPattern('%fn-into')
-        self.__collisionHandler.addAgainPattern('%fn-again-%in')
-        self.__collisionHandler.addAgainPattern('%fn-again')
         self.__gameState = GameState(self)
 
     def setGravity(self):
@@ -57,14 +55,6 @@ class ArkanoidGame(ShowBase):
 
     def defineIntoCollisionEventHandlingFrom(self, fromCNode, collisionHandling):
         eventText = fromCNode + '-into'
-        self.accept(eventText, collisionHandling)
-
-    def defineAgainCollisionEventHandling(self, fromCNode, intoCNode, collisionHandling):
-        eventText = fromCNode + '-again-' + intoCNode
-        self.accept(eventText, collisionHandling)
-
-    def defineAgainCollisionEventHandlingFrom(self, fromCNode, collisionHandling):
-        eventText = fromCNode + '-again'
         self.accept(eventText, collisionHandling)
 
     def generateEvent(self, event, args):

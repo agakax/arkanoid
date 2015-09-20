@@ -53,11 +53,7 @@ class Board(object):
     def getSurfaceExtremePos(self, surface):
         boardMinPos, boardMaxPos = self.__board.getTightBounds()
         boardMaxPos = LPoint3f(boardMaxPos/self.SCALE)
-        if surface == 'floor':
-            minPos = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0, 0.265)))
-            maxPos = LPoint3f(multiplyVectorsElements(boardMaxPos, LVector3f(1, 1, 0.265)))
-            return minPos, maxPos
-        elif surface == 'lWall':
+        if surface == 'lWall':
             minPos = boardMinPos
             maxPos = LPoint3f(multiplyVectorsElements(boardMaxPos, LVector3f(0.04, 1, 1)))
             return minPos, maxPos

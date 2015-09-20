@@ -4,7 +4,7 @@ __author__ = 'Kamila'
 #loadPrcFileData("", "want-tk #t")
 
 from direct.showbase.ShowBase import ShowBase
-from pandac.PandaModules import ClockObject, CollisionHandlerEvent, CollisionTraverser, CollisionHandlerFloor, CollisionHandlerPusher
+from pandac.PandaModules import ClockObject, CollisionHandlerEvent, CollisionTraverser, CollisionHandlerFloor
 from pandac.PandaModules import PointLight
 from GameState import GameState
 
@@ -12,7 +12,6 @@ class ArkanoidGame(ShowBase):
     __clock = ClockObject.getGlobalClock()
     __collisionHandler = CollisionHandlerEvent()
     __collisionFloorHandler = CollisionHandlerFloor()
-    __collisionWallHandlerPusher = CollisionHandlerPusher()
     __gameState = None
     def __init__(self):
         ShowBase.__init__(self)
@@ -21,6 +20,8 @@ class ArkanoidGame(ShowBase):
         self.setLight()
         self.__collisionHandler.addInPattern('%fn-into-%in')
         self.__collisionHandler.addInPattern('%fn-into')
+        self.__collisionHandler.addAgainPattern('%fn-again-%in')
+        self.__collisionHandler.addAgainPattern('%fn-again')
         self.__gameState = GameState(self)
 
     def setGravity(self):
@@ -49,18 +50,20 @@ class ArkanoidGame(ShowBase):
     def setFloorColliderHandler(self, collider):
         self.cTrav.addCollider(collider, self.__collisionFloorHandler)
 
-    def addWallColliders(self, collider, node):
-        self.__collisionWallHandlerPusher.addCollider(collider, node)
-
-    def setWallColliderHandler(self, collider):
-        self.cTrav.addCollider(collider, self.__collisionWallHandlerPusher)
-
-    def defineCollisionEventHandling(self, fromCNode, intoCNode, collisionHandling):
+    def defineIntoCollisionEventHandling(self, fromCNode, intoCNode, collisionHandling):
         eventText = fromCNode + '-into-' + intoCNode
         self.accept(eventText, collisionHandling)
 
-    def defineCollisionEventHandlingFrom(self, fromCNode, collisionHandling):
+    def defineIntoCollisionEventHandlingFrom(self, fromCNode, collisionHandling):
         eventText = fromCNode + '-into'
+        self.accept(eventText, collisionHandling)
+
+    def defineAgainCollisionEventHandling(self, fromCNode, intoCNode, collisionHandling):
+        eventText = fromCNode + '-again-' + intoCNode
+        self.accept(eventText, collisionHandling)
+
+    def defineAgainCollisionEventHandlingFrom(self, fromCNode, collisionHandling):
+        eventText = fromCNode + '-again'
         self.accept(eventText, collisionHandling)
 
     def generateEvent(self, event, args):

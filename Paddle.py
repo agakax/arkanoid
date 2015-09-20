@@ -32,17 +32,14 @@ class Paddle(object):
         self.createCollider()
 
     def loadModel(self):
-        self.__paddleNP = NodePath('paddleNP')
-        self.__paddleNP.reparentTo(self.__gameEngine.render)
         self.__paddle = self.__gameEngine.loadModel('models/ball_v1')
-        self.__paddle.reparentTo(self.__paddleNP)
 
     def setModelTexture(self):
         self.__gameEngine.setModelTexture(self.__paddle, 'textures/iron05.jpg')
 
     def setModelParameters(self):
-        self.__paddleNP.setScale(self.SCALE)
-        self.__paddleNP.setPos(self.__position)
+        self.__paddle.setScale(self.SCALE)
+        self.__paddle.setPos(self.__position)
         self.__paddle.setCollideMask(BitMask32.allOff())
 
     def createCollider(self):
@@ -58,11 +55,10 @@ class Paddle(object):
         self.__wallCollider.node().addSolid(CollisionSphere(0, 0, 0, max(sizes)))
         self.__wallCollider.node().setIntoCollideMask(BitMask32.allOff())
         self.__wallCollider.node().setFromCollideMask(Board.WALL_MASK)
-        self.__gameEngine.addWallColliders(self.__wallCollider, self.__paddleNP)
 
         self.__gameEngine.setColliderHandler(self.__ballCollider)
-        self.__gameEngine.setWallColliderHandler(self.__wallCollider)
-        #self.__gameEngine.defineCollisionEventHandling('paddleWallCNode', 'boardWallsCNode', self.collideEvent)
+        self.__gameEngine.setColliderHandler(self.__wallCollider)
+        self.__gameEngine.defineIntoCollisionEventHandling('paddleWallCNode', 'boardWallsCNode', self.collideEvent)
 
     def collideEvent(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())

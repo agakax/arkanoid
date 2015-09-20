@@ -65,7 +65,3 @@ class Block(object):
 
     def destroy(self):
         self._block.removeNode()
-        #self._hitCollider.removeNode()
-        #if self._ceilCollider != None:
-        #    self._ceilCollider.removeNode()
-        #self._rayCollider.removeNode()

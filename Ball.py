@@ -20,7 +20,7 @@ class Ball(object):
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
         self. __position = LPoint3f(35, 25, 4)
-        self.__velocity = LPoint3f(-20, 16, 0)#LPoint3f(0, 0, 0) #
+        self.__velocity = LPoint3f(-20, 0, 0)#LPoint3f(0, 0, 0) #
         self.loadModel()
         self.setModelTexture()
         self.setModelParemeters()
@@ -64,21 +64,18 @@ class Ball(object):
         self.__gameEngine.setColliderHandler(self.__blockCollider)
 
     def defineCollisionEventHandling(self):
-        self.__gameEngine.defineCollisionEventHandling('ballPaddleCNode', 'paddleBallCNode', self.collideEvent)
-        self.__gameEngine.defineCollisionEventHandling('ballWallCNode', 'boardWallsCNode', self.collideEvent)
-        self.__gameEngine.defineCollisionEventHandlingFrom('ballBlockCNode', self.hitBlock)
+        self.__gameEngine.defineIntoCollisionEventHandling('ballPaddleCNode', 'paddleBallCNode', self.collideEvent)
+        self.__gameEngine.defineIntoCollisionEventHandling('ballWallCNode', 'boardWallsCNode', self.collideEvent)
+        self.__gameEngine.defineIntoCollisionEventHandlingFrom('ballBlockCNode', self.hitBlock)
+       # self.__gameEngine.defineAgainCollisionEventHangling('ballPaddleCNode', 'boardWallsCNode', self)
 
     def collideEvent(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())
         self.__velocity = self.getReflectionVector(normal)
-        return entry
 
     def hitBlock(self, entry):
-        normal = entry.getContactNormal(entry.getIntoNodePath())
-        self.__velocity = self.getReflectionVector(normal)
-        self.refl = True
-        args = [entry]
-        self.__gameEngine.generateEvent('hitBlock', args)
+        self.collideEvent(entry)
+        self.__gameEngine.generateEvent('hitBlock', [entry])
 
     def getReflectionVector(self, normal):
         dotProduct = self.computeDotProduct(normal)
@@ -93,11 +90,17 @@ class Ball(object):
 
     def update(self, elapsedTime):
         if self.__velocity[0] == 0:
-            self.__velocity[0] += 1
-            self.__velocity[1] -= 1
-        if self.__velocity[1] == 0:
-            self.__velocity[1] += 1
-            self.__velocity[0] -= 1
+            self.__velocity[0] += 3
+            self.__velocity[1] -= self.__velocity[1]/abs(self.__velocity[1])*3
+        elif self.__velocity[1] == 0:
+            self.__velocity[1] += 3
+            self.__velocity[0] -= self.__velocity[0]/abs(self.__velocity[0])*3
+        if self.__velocity[0] in range(-2, 2):
+            self.__velocity[0] += self.__velocity[0]/abs(self.__velocity[0])*2
+            self.__velocity[1] -= self.__velocity[1]/abs(self.__velocity[1])*2
+        elif self.__velocity[1] in range(-2, 2):
+            self.__velocity[1] += self.__velocity[1]/abs(self.__velocity[1])*2
+            self.__velocity[0] -= self.__velocity[0]/abs(self.__velocity[0])*2
         moveVector = self.__velocity*elapsedTime
         self.__position = self.__ball.getPos() + moveVector
         self.__ball.setFluidPos(self.__position)

@@ -19,8 +19,8 @@ class Ball(object):
 
     def __init__(self, gameEngine):
         self.__gameEngine = gameEngine
-        self. __position = LPoint3f(47, 15, 4)
-        self.__velocity = LPoint3f(-13, 23, 0)#LPoint3f(0, 0, 0) #
+        self. __position = LPoint3f(50, 25, 4)
+        self.__velocity = LPoint3f(-18, 18, 0)
         self.__collisionAppear = False
         self.loadModel()
         self.setModelTexture()
@@ -66,7 +66,8 @@ class Ball(object):
 
     def defineCollisionEventHandling(self):
         self.__gameEngine.defineIntoCollisionEventHandling('ballPaddleCNode', 'paddleBallCNode', self.collideEvent)
-        self.__gameEngine.defineIntoCollisionEventHandling('ballWallCNode', 'boardWallsCNode', self.collideEvent)
+        self.__gameEngine.defineIntoCollisionEventHandling('ballWallCNode', 'boardSideWallsCNode', self.collideEvent)
+        self.__gameEngine.defineIntoCollisionEventHandling('ballWallCNode', 'boardBackWallCNode', self.collideEvent)
         self.__gameEngine.defineIntoCollisionEventHandlingFrom('ballBlockCNode', self.hitBlock)
 
     def collideEvent(self, entry):

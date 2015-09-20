@@ -11,7 +11,8 @@ class Board(object):
     __gameEngine = None
     __board = None
     __position = None
-    __colliderWalls = None
+    __colliderSideWalls = None
+    __colliderBackWall = None
     __colliderFloor = None
 
     def __init__(self, gameEngine):
@@ -35,15 +36,19 @@ class Board(object):
         self.__board.setCollideMask(BitMask32.allOff())
 
     def createWallCollider(self):
-        self.__colliderWalls = self.__board.attachNewNode(CollisionNode('boardWallsCNode'))
+        self.__colliderSideWalls = self.__board.attachNewNode(CollisionNode('boardSideWallsCNode'))
         point1, point2, point3, point4 = self.getWallVertices('left')
-        self.__colliderWalls.node().addSolid(CollisionPolygon(point1, point2, point3, point4))
+        self.__colliderSideWalls.node().addSolid(CollisionPolygon(point1, point2, point3, point4))
         point1, point2, point3, point4 = self.getWallVertices('right')
-        self.__colliderWalls.node().addSolid(CollisionPolygon(point1, point2, point3, point4))
+        self.__colliderSideWalls.node().addSolid(CollisionPolygon(point1, point2, point3, point4))
+        self.__colliderSideWalls.node().setIntoCollideMask(self.WALL_MASK)
+        self.__colliderSideWalls.node().setFromCollideMask(BitMask32.allOff())
+        self.__colliderBackWall = self.__board.attachNewNode(CollisionNode('boardBackWallCNode'))
         point1, point2, point3, point4 = self.getWallVertices('back')
-        self.__colliderWalls.node().addSolid(CollisionPolygon(point1, point2, point3, point4))
-        self.__colliderWalls.node().setIntoCollideMask(self.WALL_MASK)
-        self.__colliderWalls.node().setFromCollideMask(BitMask32.allOff())
+        self.__colliderBackWall.node().addSolid(CollisionPolygon(point1, point2, point3, point4))
+        self.__colliderBackWall.node().setIntoCollideMask(self.WALL_MASK)
+        self.__colliderBackWall.node().setFromCollideMask(BitMask32.allOff())
+
 
     def createFloorCollider(self):
         self.__colliderFloor = self.__board.find("**/floor_collider")

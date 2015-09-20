@@ -2,7 +2,7 @@ __author__ = 'Kamil'
 
 from panda3d.core import LPoint3f, LVector3f, BitMask32
 from pandac.PandaModules import KeyboardButton
-from pandac.PandaModules import CollisionSphere, CollisionNode, NodePath
+from pandac.PandaModules import CollisionSphere, CollisionNode, NodePath, CollisionTube
 from MathFunctions import *
 from math import sqrt
 from Board import Board
@@ -32,7 +32,7 @@ class Paddle(object):
         self.createCollider()
 
     def loadModel(self):
-        self.__paddle = self.__gameEngine.loadModel('models/ball_v1')
+        self.__paddle = self.__gameEngine.loadModel('models/paddle')
 
     def setModelTexture(self):
         self.__gameEngine.setModelTexture(self.__paddle, 'textures/iron05.jpg')
@@ -45,23 +45,23 @@ class Paddle(object):
     def createCollider(self):
         self.__ballCollider = self.__paddle.attachNewNode(CollisionNode('paddleBallCNode'))
         minimum, maximum = self.__paddle.getTightBounds()
-        sizes = (maximum - minimum)/2
-        sizes = LPoint3f(sizes/self.SCALE)
-        self.__ballCollider.node().addSolid(CollisionSphere(0, 0, 0, max(sizes)))
+        center = (maximum - minimum)/2
+        center = LPoint3f(center/self.SCALE)
+        self.__ballCollider.node().addSolid(CollisionTube(-center[0]*0.85, 0, 0, center[0]*0.85, 0, 0, 1))
         self.__ballCollider.node().setIntoCollideMask(self.PADDLE_MASK)
         self.__ballCollider.node().setFromCollideMask(BitMask32.allOff())
 
         self.__wallCollider = self.__paddle.attachNewNode(CollisionNode('paddleWallCNode'))
-        self.__wallCollider.node().addSolid(CollisionSphere(0, 0, 0, max(sizes)))
+        self.__wallCollider.node().addSolid(CollisionSphere(0, 0, 0, max(center)))
         self.__wallCollider.node().setIntoCollideMask(BitMask32.allOff())
         self.__wallCollider.node().setFromCollideMask(Board.WALL_MASK)
 
         self.__gameEngine.setColliderHandler(self.__ballCollider)
         self.__gameEngine.setColliderHandler(self.__wallCollider)
-        self.__gameEngine.defineIntoCollisionEventHandling('paddleWallCNode', 'boardWallsCNode', self.collideEvent)
+        self.__gameEngine.defineIntoCollisionEventHandling('paddleWallCNode', 'boardSideWallsCNode', self.collideEvent)
 
     def collideEvent(self, entry):
-        normal = entry.getContactNormal(entry.getIntoNodePath())
+        normal = entry.getSurfaceNormal(entry.getIntoNodePath())
         self.__reflectionDirection = normal
         self.__reflectionVector = LVector3f(multiplyVectorsElements(normal, self.__velocity))
         self.__reflectionVector *= .05
@@ -88,4 +88,3 @@ class Paddle(object):
 
     def destroy(self):
         self.__paddle.removeNode()
-        #self.__ballCollider.removeNode()

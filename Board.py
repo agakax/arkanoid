@@ -60,9 +60,9 @@ class Board(object):
         boardMaxPos = LPoint3f(boardMaxPos/self.SCALE)
         if wall == 'left':
             point1 = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(0.0027*self.SCALE, 0, 0)))
-            point2 = LPoint3f(point1 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0, 1)))
-            point3 = LPoint3f(point2 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 1, 0)))
-            point4 = LPoint3f(point1 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 1, 0)))
+            point2 = LPoint3f(point1 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 1, 0)))
+            point3 = LPoint3f(point2 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0, 1)))
+            point4 = LPoint3f(point1 + multiplyVectorsElements(boardMaxPos, LVector3f(0, 0, 1)))
             return point1, point2, point3, point4
         elif wall == 'right':
             point1 = LPoint3f(boardMinPos + multiplyVectorsElements(boardMaxPos, LVector3f(1 - (0.0027*self.SCALE) ,0 ,0)))
@@ -85,4 +85,3 @@ class Board(object):
 
     def destroy(self):
         self.__board.removeNode()
-        #self.__colliderWalls.removeNode()

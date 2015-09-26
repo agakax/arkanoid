@@ -5,6 +5,7 @@ from Board import Board
 from Paddle import Paddle
 from Ball import Ball
 from LevelBlocks import LevelBlocks
+from GUI import GUI
 from DestructibleBlock import DestructibleBlock
 from IndestructibleBlock import IndestructibleBlock
 
@@ -15,23 +16,27 @@ class Scene(object):
     __cameraPosition = LPoint3f(38, -80, 65)
     __cameraDirection = LPoint3f(0, -25, 0)
     __objects = []
+    __gui = None
+    __gameState = None
 
-    def __init__(self, base, gameEngine):
+    def __init__(self, base, gameEngine, gameState):
         self.__base = base
         self.__gameEngine = gameEngine
         self.setCamera()
         self.__base.taskMgr.add(self.updateTask, "updateTask")
         self.__gameEngine.accept('a', self.switchColliderDisplay)
         self.__gameEngine.accept('r', self.restart)
+        self.__gameState = gameState
+        self.__gui = GUI(self.__gameEngine, self.__base, self.__gameState)
+
 
     def setCamera(self):
         self.__base.disableMouse()
         self.__base.camera.setPos(self.__cameraPosition)
         self.__base.camera.setHpr(self.__cameraDirection)
 
-    def loadMenu(self):
-        #self.destroyObjects()
-        #self.drawObjects()
+    def showMenu(self):
+        self.__gui.showMenu()
         pass
 
     def loadGame(self, isPreviousStatePause):
@@ -58,6 +63,7 @@ class Scene(object):
 
     def updateTask(self, task):
         elapsedTime = self.__gameEngine.getTime()
+        self.__gui.update(elapsedTime)
         for obj in self.__objects:
             obj.update(elapsedTime)
         return task.cont

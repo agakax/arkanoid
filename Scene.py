@@ -6,6 +6,7 @@ from Paddle import Paddle
 from Ball import Ball
 from LevelBlocks import LevelBlocks
 from GUI import GUI
+from ParallaxBackground import ParallaxBackground
 from DestructibleBlock import DestructibleBlock
 from IndestructibleBlock import IndestructibleBlock
 
@@ -17,6 +18,7 @@ class Scene(object):
     __cameraDirection = LPoint3f(0, -25, 0)
     __objects = []
     __gui = None
+    __background = None
     __gameState = None
 
     def __init__(self, base, gameEngine, gameState):
@@ -28,7 +30,7 @@ class Scene(object):
         self.__gameEngine.accept('r', self.restart)
         self.__gameState = gameState
         self.__gui = GUI(self.__gameEngine, self.__base, self.__gameState)
-
+        self.__background = ParallaxBackground(self.__gameEngine, self.__base)
 
     def setCamera(self):
         self.__base.disableMouse()
@@ -43,7 +45,7 @@ class Scene(object):
         if not isPreviousStatePause:
             self.destroyObjects()
             self.__objects.append(Board(self.__gameEngine, self.__base))
-            self.__objects.append(Paddle(self.__gameEngine, self.__base))
+            self.__objects.append(Paddle(self.__gameEngine, self.__base, self.__background))
             self.__objects.append(Ball(self.__gameEngine, self.__base))
             self.__objects.append(LevelBlocks(self.__gameEngine, self.__base))
             self.__objects[3].loadLevelBlocks()

@@ -10,7 +10,6 @@ from pandac.PandaModules import ClockObject, CollisionHandlerEvent, CollisionTra
 from pandac.PandaModules import PointLight, AmbientLight
 from panda3d.core import LPoint3f, VBase4
 
-from direct.gui.OnscreenImage import OnscreenImage
 from GameState import GameState
 
 class ArkanoidGame(DirectObject):
@@ -28,13 +27,6 @@ class ArkanoidGame(DirectObject):
         self.__collisionHandler.addInPattern('%fn-into-%in')
         self.__collisionHandler.addInPattern('%fn-into')
         self.__gameState = GameState(self, base)
-        self.loadBackground("textures/back.jpg")
-
-    def loadBackground(self, imagepath):
-        self.background = OnscreenImage(parent=render2dp, image=imagepath)
-        self.background.setScale(float(self.background.getTexture().getYSize())/base.win.getYSize())
-# Load an image object
-        base.cam2dp.node().getDisplayRegion(0).setSort(-20) # Force the rendering to render the background image first (so that it will be put to the bottom of the scene since other models will be necessarily drawn on top)
 
     def setGravity(self):
         self.__collisionFloorHandler.setMaxVelocity(15)

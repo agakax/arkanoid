@@ -20,10 +20,11 @@ class Paddle(object):
     __reflectionDirection = None
     __ballCollider = None
     __wallCollider = None
-
-    def __init__(self, gameEngine, base):
+    __background = None
+    def __init__(self, gameEngine, base, background):
         self.__base = base
         self.__gameEngine = gameEngine
+        self.__background = background
         self.__position = LPoint3f(45, 5, 4)
         self.__velocity = LVector3f(20.0, 0, 0)
         self.__reflectionVector = LVector3f(0, 0, 0)
@@ -85,6 +86,7 @@ class Paddle(object):
         newposition = self.__position + moveVector
         if newposition.x < 67 and newposition.x > 8:
             self.__position += moveVector
+            self.__background.updateBackground(moveVector.x, elapsedTime)
         self.__paddle.setFluidPos(self.__position)
 
     def reflectionVectorLength(self):

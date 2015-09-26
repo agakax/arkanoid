@@ -29,6 +29,7 @@ class GUI(object):
         self.__gameEngine = gameEngine
         self.__base = base
         self.__gameState = gameState
+        self.__selected = EnumMenuOptions.NEW_GAME
 
     def showMenu(self):
         self.__screenImage = OnscreenImage(parent=self.__base.render2d, image=self.__screenImagePath, pos=(0,0,0))
@@ -83,6 +84,7 @@ class GUI(object):
         image.setScale(float(image.getTexture().getXSize())/self.__base.win.getXSize(), 1, float(image.getTexture().getYSize())/self.__base.win.getYSize())
 
     def changeSelected(self, menuOption):
+        if self.__gameState.getGameState() == EnumGameStates.MENU:
             if menuOption == EnumMenuOptions.NEW_GAME:
                 self.__selectedImage.setPos(self.__newGameImage.getPos())
             elif menuOption == EnumMenuOptions.QUIT:

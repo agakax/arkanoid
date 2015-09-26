@@ -25,7 +25,7 @@ class Paddle(object):
         self.__base = base
         self.__gameEngine = gameEngine
         self.__position = LPoint3f(45, 5, 4)
-        self.__velocity = LVector3f(25.0, 0, 0)
+        self.__velocity = LVector3f(20.0, 0, 0)
         self.__reflectionVector = LVector3f(0, 0, 0)
         self.__reflectionDirection = LVector3f(0, 0, 0)
         self.loadModel()
@@ -82,7 +82,9 @@ class Paddle(object):
             moveVector = -self.__velocity*elapsedTime
         elif is_down(KeyboardButton.right()):
             moveVector = self.__velocity*elapsedTime
-        self.__position += moveVector
+        newposition = self.__position + moveVector
+        if newposition.x < 67 and newposition.x > 8:
+            self.__position += moveVector
         self.__paddle.setFluidPos(self.__position)
 
     def reflectionVectorLength(self):

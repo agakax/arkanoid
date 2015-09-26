@@ -7,8 +7,8 @@ import direct.directbase.DirectStart
 from direct.showbase.ShowBase import ShowBase
 from direct.showbase.DirectObject import DirectObject
 from pandac.PandaModules import ClockObject, CollisionHandlerEvent, CollisionTraverser, CollisionHandlerFloor
-from pandac.PandaModules import PointLight
-from panda3d.core import LPoint3f
+from pandac.PandaModules import PointLight, AmbientLight
+from panda3d.core import LPoint3f, VBase4
 
 from direct.gui.OnscreenImage import OnscreenImage
 from GameState import GameState
@@ -44,7 +44,11 @@ class ArkanoidGame(DirectObject):
         pLight = PointLight('pLight')
         plnp = base.render.attachNewNode(pLight)
         plnp.setPos(37, 10, 15)
+        alight = AmbientLight('alight')
+        alight.setColor(VBase4(0.2, 0.25, 0.25, 1))
+        alnp = base.render.attachNewNode(alight)
         base.render.setLight(plnp)
+        base.render.setLight(alnp)
 
     def loadModel(self, modelPath):
         return base.loader.loadModel(modelPath)

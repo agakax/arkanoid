@@ -5,7 +5,7 @@ import time, sys
 from EnumGameStates import EnumGameStates
 
 class GameState(object):
-    __gameState = EnumGameStates.INITIALIZING
+    __state = EnumGameStates.INITIALIZING
     __gameScene = None
     __gameEngine = None
     __base = None
@@ -19,18 +19,21 @@ class GameState(object):
     def createGameScene(self):
         self.__gameScene = Scene(self.__base, self.__gameEngine, self)
 
+    def getGameState(self):
+        return self.__state
+
     def setGameState(self, newGameState):
-        if self.__gameState != newGameState:
+        if self.__state != newGameState:
             if newGameState == EnumGameStates.MENU:
                 self.__gameScene.showMenu()
             elif newGameState == EnumGameStates.PLAY:
-                isPreviousStatePause = self.__gameState == EnumGameStates.PAUSE
+                isPreviousStatePause = self.__state == EnumGameStates.PAUSE
                 self.__gameScene.loadGame(isPreviousStatePause)
             elif newGameState == EnumGameStates.PAUSE:
                 self.__gameScene.pauseGame()
             elif newGameState == EnumGameStates.EXITING:
                 sys.exit()
-            self.__gameState = newGameState
+            self.__state = newGameState
 
 
 

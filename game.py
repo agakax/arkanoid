@@ -3,25 +3,34 @@ __author__ = 'Kamila'
 #loadPrcFileData("", "want-directtools #t")
 #loadPrcFileData("", "want-tk #t")
 
+import direct.directbase.DirectStart
 from direct.showbase.ShowBase import ShowBase
+from direct.showbase.DirectObject import DirectObject
 from pandac.PandaModules import ClockObject, CollisionHandlerEvent, CollisionTraverser, CollisionHandlerFloor
 from pandac.PandaModules import PointLight
+from direct.gui.OnscreenImage import OnscreenImage
 from GameState import GameState
 
-class ArkanoidGame(ShowBase):
+class ArkanoidGame(DirectObject):
     __clock = ClockObject.getGlobalClock()
     __collisionHandler = CollisionHandlerEvent()
     __collisionFloorHandler = CollisionHandlerFloor()
     __gameState = None
     def __init__(self):
-        ShowBase.__init__(self)
-        self.cTrav = CollisionTraverser()
-        self.cTrav.setRespectPrevTransform(True)
+        #ShowBase.__init__(self)
+
+        base.cTrav = CollisionTraverser()
+        base.cTrav.setRespectPrevTransform(True)
         self.setGravity()
         self.setLight()
         self.__collisionHandler.addInPattern('%fn-into-%in')
         self.__collisionHandler.addInPattern('%fn-into')
-        self.__gameState = GameState(self)
+        self.__gameState = GameState(self, base)
+        self.loadBackground("textures/starstars.jpg")
+
+    def loadBackground(self, imagepath):
+        self.background = OnscreenImage(parent=render2dp, image=imagepath) # Load an image object
+        base.cam2dp.node().getDisplayRegion(0).setSort(-20) # Force the rendering to render the background image first (so that it will be put to the bottom of the scene since other models will be necessarily drawn on top)
 
     def setGravity(self):
         self.__collisionFloorHandler.setMaxVelocity(15)
@@ -29,25 +38,25 @@ class ArkanoidGame(ShowBase):
 
     def setLight(self):
         pLight = PointLight('pLight')
-        plnp = self.render.attachNewNode(pLight)
+        plnp = base.render.attachNewNode(pLight)
         plnp.setPos(37, 10, 15)
-        self.render.setLight(plnp)
+        base.render.setLight(plnp)
 
     def loadModel(self, modelPath):
-        return self.loader.loadModel(modelPath)
+        return base.loader.loadModel(modelPath)
 
     def setModelTexture(self, model, modelTexturePath):
-        texture = self.loader.loadTexture(modelTexturePath)
+        texture = base.loader.loadTexture(modelTexturePath)
         model.setTexture(texture, 1)
 
     def setColliderHandler(self, collider):
-        self.cTrav.addCollider(collider, self.__collisionHandler)
+        base.cTrav.addCollider(collider, self.__collisionHandler)
 
     def addFloorColliders(self, ray, node):
         self.__collisionFloorHandler.addCollider(ray, node)
 
     def setFloorColliderHandler(self, collider):
-        self.cTrav.addCollider(collider, self.__collisionFloorHandler)
+        base.cTrav.addCollider(collider, self.__collisionFloorHandler)
 
     def defineIntoCollisionEventHandling(self, fromCNode, intoCNode, collisionHandling):
         eventText = fromCNode + '-into-' + intoCNode
@@ -55,13 +64,15 @@ class ArkanoidGame(ShowBase):
 
     def defineIntoCollisionEventHandlingFrom(self, fromCNode, collisionHandling):
         eventText = fromCNode + '-into'
-        self.accept(eventText, collisionHandling)
+        base.accept(eventText, collisionHandling)
 
     def generateEvent(self, event, args):
-        self.messenger.send(event, args)
+        base.messenger.send(event, args)
 
     def getTime(self):
         return self.__clock.getDt()
 
+
+
 app = ArkanoidGame()
-app.run()
+base.run()

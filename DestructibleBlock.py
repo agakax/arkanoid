@@ -3,8 +3,8 @@ __author__ = 'Kamil'
 from Block import Block
 
 class DestructibleBlock(Block):
-    def __init__(self, gameEngine, position, blockId):
-        Block.__init__(self, gameEngine)
+    def __init__(self, gameEngine, base, position, blockId):
+        Block.__init__(self, gameEngine, base)
         self._durability = 1
         self._points = 10
         self.loadModel('models/cube_new')

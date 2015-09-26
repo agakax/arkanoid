@@ -10,11 +10,13 @@ from IndestructibleBlock import IndestructibleBlock
 
 class LevelBlocks(object):
     __gameEngine = None
+    __base = None
     __level = 0
     __levelsFiles = []
     __blocks = []
 
-    def __init__(self, gameEngine):
+    def __init__(self, gameEngine, base):
+        self.__base = base
         self.__gameEngine = gameEngine
         self.getLevelsList()
         self.defineCollisionEventHandling()
@@ -53,9 +55,9 @@ class LevelBlocks(object):
 
     def createBlock(self, element, position, blockId):
         if element == '1':
-            return DestructibleBlock(self.__gameEngine, position, blockId)
+            return DestructibleBlock(self.__gameEngine, self.__base, position, blockId)
         elif element == '2':
-            return IndestructibleBlock(self.__gameEngine, position, blockId)
+            return IndestructibleBlock(self.__gameEngine, self.__base, position, blockId)
         else:
             return None
 

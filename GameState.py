@@ -14,14 +14,15 @@ class GameState(object):
     __gameState = EnumGameStates.INITIALIZING
     __gameScene = None
     __gameEngine = None
-
-    def __init__(self, gameEngine):
+    __base = None
+    def __init__(self, gameEngine, base):
+        self.__base = base
         self.__gameEngine = gameEngine
         self.createGameScene()
         self.setGameState(EnumGameStates.PLAY)
 
     def createGameScene(self):
-        self.__gameScene = Scene(self.__gameEngine)
+        self.__gameScene = Scene(self.__base, self.__gameEngine)
 
     def setGameState(self, newGameState):
         if self.__gameState != newGameState:

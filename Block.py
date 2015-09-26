@@ -17,9 +17,11 @@ class Block(object):
     _hitCollider = None
     _rayCollider = None
     _ceilCollider = None
+    _base = None
 
-    def __init__(self, gameEngine):
+    def __init__(self, gameEngine, base):
         self._gameEngine = gameEngine
+        self._base = base
 
     def loadModel(self, modelPath):
         self._block = self._gameEngine.loadModel(modelPath)
@@ -58,7 +60,7 @@ class Block(object):
         self._gameEngine.setFloorColliderHandler(self._rayCollider)
 
     def draw(self):
-        self._block.reparentTo(self._gameEngine.render)
+        self._block.reparentTo(self._base.render)
 
     def update(self, elapsedTime):
         pass

@@ -10,6 +10,7 @@ from Board import Board
 class Paddle(object):
     PADDLE_MASK = BitMask32.bit(4)
     SCALE = 1
+    __base = None
     __gameEngine = None
     __paddleNP = None
     __paddle = None
@@ -20,7 +21,8 @@ class Paddle(object):
     __ballCollider = None
     __wallCollider = None
 
-    def __init__(self, gameEngine):
+    def __init__(self, gameEngine, base):
+        self.__base = base
         self.__gameEngine = gameEngine
         self.__position = LPoint3f(45, 5, 4)
         self.__velocity = LVector3f(25.0, 0, 0)
@@ -67,10 +69,10 @@ class Paddle(object):
         self.__reflectionVector *= .05
 
     def draw(self):
-        self.__paddle.reparentTo(self.__gameEngine.render)
+        self.__paddle.reparentTo(self.__base.render)
 
     def update(self, elapsedTime):
-        is_down = self.__gameEngine.mouseWatcherNode.is_button_down
+        is_down = self.__base.mouseWatcherNode.is_button_down
         moveVector = LPoint3f(0, 0, 0)
         if self.reflectionVectorLength() > 0.5:
             moveVector = LVector3f(multiplyVectorsElements(self.__reflectionDirection, self.__velocity))

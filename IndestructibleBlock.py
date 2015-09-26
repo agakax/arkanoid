@@ -3,8 +3,8 @@ __author__ = 'Kamil'
 from Block import Block
 
 class IndestructibleBlock(Block):
-    def __init__(self, gameEngine, position, blockId):
-        Block.__init__(self, gameEngine)
+    def __init__(self, gameEngine, base, position, blockId):
+        Block.__init__(self, gameEngine, base)
         self._durability = -1
         self._points = 0
         self.loadModel('models/cone_wo2')

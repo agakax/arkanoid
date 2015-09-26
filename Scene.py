@@ -16,17 +16,18 @@ class Scene(object):
     __cameraDirection = LPoint3f(0, -25, 0)
     __objects = []
 
-    def __init__(self, gameEngine):
+    def __init__(self, base, gameEngine):
+        self.__base = base
         self.__gameEngine = gameEngine
         self.setCamera()
-        self.__gameEngine.taskMgr.add(self.updateTask, "updateTask")
+        self.__base.taskMgr.add(self.updateTask, "updateTask")
         self.__gameEngine.accept('a', self.switchColliderDisplay)
         self.__gameEngine.accept('r', self.restart)
 
     def setCamera(self):
-        self.__gameEngine.disableMouse()
-        self.__gameEngine.camera.setPos(self.__cameraPosition)
-        self.__gameEngine.camera.setHpr(self.__cameraDirection)
+        self.__base.disableMouse()
+        self.__base.camera.setPos(self.__cameraPosition)
+        self.__base.camera.setHpr(self.__cameraDirection)
 
     def loadMenu(self):
         #self.destroyObjects()
@@ -36,10 +37,10 @@ class Scene(object):
     def loadGame(self, isPreviousStatePause):
         if not isPreviousStatePause:
             self.destroyObjects()
-            self.__objects.append(Board(self.__gameEngine))
-            self.__objects.append(Paddle(self.__gameEngine))
-            self.__objects.append(Ball(self.__gameEngine))
-            self.__objects.append(LevelBlocks(self.__gameEngine))
+            self.__objects.append(Board(self.__gameEngine, self.__base))
+            self.__objects.append(Paddle(self.__gameEngine, self.__base))
+            self.__objects.append(Ball(self.__gameEngine, self.__base))
+            self.__objects.append(LevelBlocks(self.__gameEngine, self.__base))
             self.__objects[3].loadLevelBlocks()
             self.drawObjects()
 
@@ -65,12 +66,12 @@ class Scene(object):
         global collshow
         collshow=not collshow
         if collshow:
-            self.__gameEngine.cTrav.showCollisions(self.__gameEngine.render)
-            l=self.__gameEngine.render.findAllMatches("**/+CollisionNode")
+            self.__base.cTrav.showCollisions(self.__base.render)
+            l=self.__base.render.findAllMatches("**/+CollisionNode")
             for cn in l: cn.show()
         else:
-            self.__gameEngine.cTrav.hideCollisions()
-            l=self.__gameEngine.render.findAllMatches("**/+CollisionNode")
+            self.__base.cTrav.hideCollisions()
+            l=self.__base.render.findAllMatches("**/+CollisionNode")
             for cn in l: cn.hide()
 
     def restart(self):

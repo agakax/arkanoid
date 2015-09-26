@@ -10,12 +10,14 @@ class Board(object):
     SCALE = 15
     __gameEngine = None
     __board = None
+    __base = None
     __position = None
     __colliderSideWalls = None
     __colliderBackWall = None
     __colliderFloor = None
 
-    def __init__(self, gameEngine):
+    def __init__(self, gameEngine, base):
+        self.__base = base
         self.__gameEngine = gameEngine
         self.__position = LPoint3f(0, 0, 0)
         self.loadModel()
@@ -78,7 +80,7 @@ class Board(object):
             return point1, point2, point3, point4
 
     def draw(self):
-        self.__board.reparentTo(self.__gameEngine.render)
+        self.__board.reparentTo(self.__base.render)
 
     def update(self, elapsedTime):
         pass

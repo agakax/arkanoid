@@ -10,6 +10,7 @@ class Ball(object):
     SCALE = 1
     __gameEngine = None
     __ball = None
+    __base = None
     __position = None
     __velocity = None
     __wallCollider = None
@@ -17,7 +18,8 @@ class Ball(object):
     __paddleCollider = None
     __collisionAppear = None
 
-    def __init__(self, gameEngine):
+    def __init__(self, gameEngine, base):
+        self.__base = base
         self.__gameEngine = gameEngine
         self. __position = LPoint3f(50, 25, 4)
         self.__velocity = LPoint3f(-18, 18, 0)
@@ -89,7 +91,7 @@ class Ball(object):
         return sum(n*v for n,v in zip(normal, self.__velocity))
 
     def draw(self):
-        self.__ball.reparentTo(self.__gameEngine.render)
+        self.__ball.reparentTo(self.__base.render)
 
     def update(self, elapsedTime):
         self.__collisionAppear = False

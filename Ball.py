@@ -11,15 +11,18 @@ class Ball(object):
     __gameEngine = None
     __ball = None
     __base = None
+    __scene = None
     __position = None
     __velocity = None
     __wallCollider = None
     __blockCollider = None
     __paddleCollider = None
     __collisionAppear = None
+    __lost = False
 
-    def __init__(self, gameEngine, base):
+    def __init__(self, gameEngine, base, scene):
         self.__base = base
+        self.__scene = scene
         self.__gameEngine = gameEngine
         self. __position = LPoint3f(50, 25, 4)
         self.__velocity = LPoint3f(-12, 12, 0)
@@ -111,6 +114,13 @@ class Ball(object):
         moveVector = self.__velocity*elapsedTime
         self.__position = self.__ball.getPos() + moveVector
         self.__ball.setFluidPos(self.__position)
+        if (self.__position.y < -1 and not self.__lost):
+            self.ballLost()
+
+
+    def ballLost(self):
+        self.__lost = True
+        self.__scene.ballLost()
 
     def destroy(self):
         self.__ball.removeNode()

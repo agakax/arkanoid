@@ -28,6 +28,7 @@ class Scene(object):
         self.__base.taskMgr.add(self.updateTask, "updateTask")
         self.__gameEngine.accept('a', self.switchColliderDisplay)
         self.__gameEngine.accept('r', self.restart)
+        self.__gameEngine.accept('escape', self.backToMenu)
         self.__gameState = gameState
         self.__gui = GUI(self.__gameEngine, self.__base, self.__gameState)
         self.__background = ParallaxBackground(self.__gameEngine, self.__base)
@@ -46,7 +47,7 @@ class Scene(object):
             self.destroyObjects()
             self.__objects.append(Board(self.__gameEngine, self.__base))
             self.__objects.append(Paddle(self.__gameEngine, self.__base, self.__background))
-            self.__objects.append(Ball(self.__gameEngine, self.__base))
+            self.__objects.append(Ball(self.__gameEngine, self.__base, self))
             self.__objects.append(LevelBlocks(self.__gameEngine, self.__base))
             self.__objects[3].loadLevelBlocks()
             self.drawObjects()
@@ -84,4 +85,12 @@ class Scene(object):
 
     def restart(self):
         self.destroyObjects()
+        self.__gui.hideGameOver()
         self.loadGame(False)
+
+    def ballLost(self):
+        self.__gui.showGameOver()
+
+    def backToMenu(self):
+        self.destroyObjects()
+        self.__gui.backToMenu()

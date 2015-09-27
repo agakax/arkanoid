@@ -1,4 +1,5 @@
 __author__ = 'Kamil'
+from direct.gui.OnscreenText import OnscreenText
 from direct.gui.OnscreenImage import OnscreenImage
 from panda3d.core import TransparencyAttrib
 from EnumGameStates import EnumGameStates
@@ -24,6 +25,9 @@ class GUI(object):
     __newGameImagePath = "textures/newgame.png"
     __quitImagePath = "textures/quit.png"
     __selectedImagePath = "textures/selected.png"
+    __gameOverText = None
+    __backToMenuText = None
+    __tryAgainText = None
 
     def __init__(self, gameEngine, base, gameState):
         self.__gameEngine = gameEngine
@@ -63,6 +67,14 @@ class GUI(object):
         self.__quitImage.removeNode()
         self.__selectedImage.removeNode()
 
+    def hideGameOver(self):
+        if self.__gameOverText != None:
+            self.__gameOverText.removeNode()
+        if self.__tryAgainText != None:
+            self.__tryAgainText.removeNode()
+        if self.__backToMenuText != None:
+            self.__backToMenuText.removeNode()
+
     def update (self, elapsedTime):
         is_down = self.__base.mouseWatcherNode.is_button_down
         if  (is_down(KeyboardButton.up()) and (self.__selected > 0)):
@@ -80,6 +92,10 @@ class GUI(object):
         elif self.__selected == EnumMenuOptions.QUIT:
             self.__gameState.setGameState(EnumGameStates.EXITING)
 
+    def backToMenu(self):
+        self.hideGameOver()
+        self.__gameState.setGameState(EnumGameStates.MENU)
+
     def preserveImageAspect(self, image):
         image.setScale(float(image.getTexture().getXSize())/self.__base.win.getXSize(), 1, float(image.getTexture().getYSize())/self.__base.win.getYSize())
 
@@ -92,3 +108,26 @@ class GUI(object):
             self.__selected = menuOption
         else:
             pass
+
+    def showGameOver(self):
+        self.__gameOverText =  OnscreenText(text = 'GAME OVER',
+                                            pos = (0.0, 0.4),
+                                            scale = 0.1,
+                                            parent = self.__base.render2d,
+                                            fg = (1,0,0,1),
+                                            shadow = (0,0,0,1))
+        self.__tryAgainText =  OnscreenText(text = '"R" - try this level again',
+                                            pos = (0.0, 0.2),
+                                            scale = 0.07,
+                                            parent = self.__base.render2d,
+                                            fg = (1,0,0,1),
+                                            shadow = (0,0,0,1))
+        self.__backToMenuText =  OnscreenText(text = '"Esc" - back to menu',
+                                            pos = (0.0, 0.0),
+                                            scale = 0.07,
+                                            parent = self.__base.render2d,
+                                            fg = (1,0,0,1),
+                                            shadow = (0,0,0,1))
+
+
+

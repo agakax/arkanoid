@@ -14,9 +14,14 @@ class BlockDestroyedEffect(object):
     def particleEffect(self):
         self.p = ParticleEffect()
         self.loadParticleConfig('particleEffect.ptf')
-        self.__base.taskMgr.doMethodLater(0.5, self.cleanUpParticles, "cleanup")
+        self.__base.taskMgr.doMethodLater(0.5, self.stopParticles, "stop")
+        self.__base.taskMgr.doMethodLater(2.0, self.cleanUpParticles, "cleanup")
+
 
     def cleanUpParticles(self, task):
+         self.p.cleanup()
+
+    def stopParticles(self, task):
          self.p.softStop()
 
     def loadParticleConfig(self, file):

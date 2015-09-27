@@ -90,3 +90,5 @@ class GUI(object):
             elif menuOption == EnumMenuOptions.QUIT:
                 self.__selectedImage.setPos(self.__quitImage.getPos())
             self.__selected = menuOption
+        else:
+            pass

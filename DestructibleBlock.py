@@ -1,6 +1,7 @@
 __author__ = 'Kamil'
 
 from Block import Block
+from BlockDestroyedEffect import BlockDestroyedEffect
 
 class DestructibleBlock(Block):
     def __init__(self, gameEngine, base, position, blockId):
@@ -18,5 +19,6 @@ class DestructibleBlock(Block):
     def ballHit(self):
         self._durability -= 1
         if self._durability == 0:
+            BlockDestroyedEffect(self._base, self._block.getPos())
             self.destroy()
 

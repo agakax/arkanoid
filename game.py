@@ -4,7 +4,6 @@ __author__ = 'Kamila'
 #loadPrcFileData("", "want-tk #t")
 
 import direct.directbase.DirectStart
-from direct.showbase.ShowBase import ShowBase
 from direct.showbase.DirectObject import DirectObject
 from pandac.PandaModules import ClockObject, CollisionHandlerEvent, CollisionTraverser, CollisionHandlerFloor
 from pandac.PandaModules import PointLight, AmbientLight
@@ -18,8 +17,7 @@ class ArkanoidGame(DirectObject):
     __collisionFloorHandler = CollisionHandlerFloor()
     __gameState = None
     def __init__(self):
-        #ShowBase.__init__(self)
-
+        base.enableParticles()
         base.cTrav = CollisionTraverser()
         base.cTrav.setRespectPrevTransform(True)
         self.setGravity()
@@ -71,8 +69,6 @@ class ArkanoidGame(DirectObject):
 
     def getTime(self):
         return self.__clock.getDt()
-
-
 
 app = ArkanoidGame()
 base.run()

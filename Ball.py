@@ -22,7 +22,8 @@ class Ball(object):
         self.__base = base
         self.__gameEngine = gameEngine
         self. __position = LPoint3f(50, 25, 4)
-        self.__velocity = LPoint3f(-18, 18, 0)
+        self.__velocity = LPoint3f(-12, 12, 0)
+        self.__acceleration = 1.001
         self.__collisionAppear = False
         self.loadModel()
         self.setModelTexture()
@@ -74,7 +75,7 @@ class Ball(object):
 
     def collideEvent(self, entry):
         normal = entry.getContactNormal(entry.getIntoNodePath())
-        self.__velocity = self.getReflectionVector(normal)
+        self.__velocity = self.getReflectionVector(normal) * self.__acceleration
 
     def hitBlock(self, entry):
         if not self.__collisionAppear:

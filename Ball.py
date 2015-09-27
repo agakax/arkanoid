@@ -17,7 +17,7 @@ class Ball(object):
     __wallCollider = None
     __blockCollider = None
     __paddleCollider = None
-    __collisionAppear = None
+    __timeElapsedAfterBlockCollision = None
     __lost = False
 
     def __init__(self, gameEngine, base, scene):
@@ -27,7 +27,7 @@ class Ball(object):
         self. __position = LPoint3f(50, 25, 4)
         self.__velocity = LPoint3f(-12, 12, 0)
         self.__acceleration = 1.001
-        self.__collisionAppear = False
+        self.__timeElapsedAfterBlockCollision = .0
         self.loadModel()
         self.setModelTexture()
         self.setModelParemeters()
@@ -81,8 +81,8 @@ class Ball(object):
         self.__velocity = self.getReflectionVector(normal) * self.__acceleration
 
     def hitBlock(self, entry):
-        if not self.__collisionAppear:
-            self.__collisionAppear = True
+        if self.__timeElapsedAfterBlockCollision > .1:
+            self.__timeElapsedAfterBlockCollision = 0
             self.collideEvent(entry)
             self.__gameEngine.generateEvent('hitBlock', [entry])
 
@@ -98,7 +98,7 @@ class Ball(object):
         self.__ball.reparentTo(self.__base.render)
 
     def update(self, elapsedTime):
-        self.__collisionAppear = False
+        self.__timeElapsedAfterBlockCollision += elapsedTime
         if self.__velocity[0] == 0:
             self.__velocity[0] += 3
             self.__velocity[1] -= self.__velocity[1]/abs(self.__velocity[1])*3
